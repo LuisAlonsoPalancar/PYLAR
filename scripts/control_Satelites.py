@@ -40,10 +40,10 @@ class SatelitesWindow(QWidget):
         self.sesiones = sesiones_seleccionadas # Lista de sesiones seleccionadas entrantes
         self.fecha_str = self.fecha_input.toString("yyyyMMdd")  # Fecha en formato yyyyMMdd
 
-        ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
-        ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
-        self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
-        #self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
+        #ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
+        #ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
+        #self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
+        self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
 
         # Establecer la fecha en el widget, en formato dd/MM/yyyy
         self.ui.fecha_entrada.setStyleSheet("font-size: 14pt; font-weight: 700;")
