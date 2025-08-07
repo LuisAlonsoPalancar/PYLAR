@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="logoYapagar">
+    <file>apagar.png</file>
+    <file>Logo YLARA.png</file>
+  </qresource>
+</RCC>

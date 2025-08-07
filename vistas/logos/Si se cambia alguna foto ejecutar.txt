@@ -1,0 +1,6 @@
+Si se cambia alguna foto ejecutar:
+
+pyrcc5 imagenes/logos.qrc -o imagenes/logos_rsc.py
+
+Y cambiar internamente la llamada de PyQt5 a PyQt6
+from vistas.logos.logos_rsc import *

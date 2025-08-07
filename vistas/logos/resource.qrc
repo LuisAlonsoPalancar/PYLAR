@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="icon">
+    <file>calendario.svg</file>
+    <file>lista.svg</file>
+    <file>arrow-151-48.ico</file>
+    <file>target_laser.svg</file>
+    <file>arrow-213-48.ico</file>
+    <file>arrow-19-48.ico</file>
+    <file>arrow-119-48.ico</file>
+    <file>arrow-204-32.ico</file>
+  </qresource>
+</RCC>
