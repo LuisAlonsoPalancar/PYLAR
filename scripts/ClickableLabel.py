@@ -1,3 +1,16 @@
+"""
+----------------------------------
+Nombre del archivo:     ClickableLabel.py
+Descripción:            Este script define un QLabel que muestra una imagen
+                        y permite hacer clic en ella para ampliarla.
+
+Entrada(s):             
+Salida(s):              Muestra la imagen ampliada en un diálogo.
+Dependencias:           PyQt6 (V 6.4.2)
+Autor:                  Luis Alonso Palancar
+Fecha:                  Julio 2025
+----------------------------------
+"""
 from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
@@ -7,11 +20,13 @@ class ClickableLabel(QLabel):
         super().__init__(parent)
         self.ruta_imagen = ruta_imagen
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event): 
+        #OBJ: Mostrar imagen ampliada al hacer clic
         self.mostrar_imagen_ampliada()
 
     def mostrar_imagen_ampliada(self):
-        # Crear un diálogo sin asignar self como padre
+        #OBJ: Mostrar imagen ampliada en un diálogo
+
         dialogo = QDialog(self)
         dialogo.setWindowTitle("Imagen ampliada")
         layout = QVBoxLayout(dialogo)

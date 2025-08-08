@@ -24,18 +24,21 @@ from PyQt6.QtWidgets import QWidget, QTableWidgetItem, QCheckBox, QHeaderView, Q
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap, QColor
 
-from scripts.ClickableLabel import ClickableLabel 
-from vistas.Window_Satelites_ui import Ui_Form  # Importar la clase generada por pyuic6
-from scripts.control_Sesiones import SesionesWindow as Ventana_lista_sesiones  # Importar la clase generada por pyuic6
+from scripts.ClickableLabel import ClickableLabel # Clase para ampliar imagen de grafica
+from scripts.control_Sesiones import SesionesWindow as Ventana_lista_sesiones  # Control de sesiones
+from vistas.Window_Satelites_ui import Ui_Form  # Ventana de Satélites
+
 class SatelitesWindow(QWidget):
-    sesiones_seleccionadas = pyqtSignal(list)
+    sesiones_seleccionadas = pyqtSignal(list) # Signal que emite la lista de sesiones seleccionadas
 
     def __init__(self, sesiones_seleccionadas, fecha):
         super().__init__()
+
         self.ui = Ui_Form()  # Crear una instancia de la clase
         self.ui.setupUi(self)  # Configurar la interfaz de usuario
-        self.fecha_input = fecha  # Guardar la fecha recibida
-        #Variables de la instancia
+
+        # Variables de la instancia
+        self.fecha_input = fecha  # Guardar la fecha recibida (QDate)
         self.datos_satelites = [] # Lista para almacenar los diccionarios de los satélites
         self.sesiones = sesiones_seleccionadas # Lista de sesiones seleccionadas entrantes
         self.fecha_str = self.fecha_input.toString("yyyyMMdd")  # Fecha en formato yyyyMMdd
@@ -43,6 +46,7 @@ class SatelitesWindow(QWidget):
         ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
         ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
         self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
+        
         #self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
 
         # Establecer la fecha en el widget, en formato dd/MM/yyyy
@@ -51,16 +55,17 @@ class SatelitesWindow(QWidget):
         
         #Cargar los datos de los satélites en la tabla
         self.cargar_datos()
+        #Conectar botones con sus acciones correspondientes
         self.ui.BotonSubir.clicked.connect(self.SubirDatos)  # Conectar el botón a la función de checkboxes seleccionados
         self.ui.BotonProcMan.clicked.connect(self.ProcesadoMan)  # Conectar el botón a la función de Procesado Manual
         self.ui.BotonBorrar.clicked.connect(self.Eliminar_datos)  # Conectar el botón a la función de eliminar datos
         self.ui.BotonProcAuto.clicked.connect(self.ProcesadoAuto)  # Conectar el botón a la función de Procesado Automático
         self.ui.BotonAddSessions.clicked.connect(self.AgregarSesiones)  # Conectar el botón de añadir sesiones a la función AgregarSesiones
-        self.ui.SelectAll.clicked.connect(self.seleccionar_todos)  # Conectar el botón de seleccionar todos a la función seleccionar_todos
+        self.ui.SelectAll.clicked.connect(self.seleccionar_todos)  # Conectar el checkbox de seleccionar todos a la función seleccionar_todos
 
     def AgregarSesiones(self):
-        #OBJ: Agregar sesiones a la lista de sesiones seleccionadas
-        #POST: Muestra un mensaje de advertencia si no hay sesiones seleccionadas
+        #OBJ: Abrir la ventana de sesiones para añadir sesiones a la lista
+        #POST: Muestra la ventana de sesiones
         self.ui.tablaSatelites.clearSelection()  # Limpiar la selección de la tabla
         self.hija = Ventana_lista_sesiones(self.fecha_input, self.sesiones)  # Crear una instancia de la ventana de sesiones
         self.hija.sesiones_seleccionadas.connect(self.anadir_sesion)  # Conectar señal
@@ -69,30 +74,31 @@ class SatelitesWindow(QWidget):
     def anadir_sesion(self, sesiones_nuevas):
         #OBJ: Añadir sesiones a la lista de sesiones seleccionadas
         #POST: Actualiza la lista de sesiones con las nuevas sesiones
+        #IN: sesiones_nuevas(list): Lista de sesiones seleccionadas.
         self.sesiones = sesiones_nuevas
-        self.sesiones_seleccionadas.emit(self.sesiones)  # Emite la señal con las carpetas seleccionadas
+        self.sesiones_seleccionadas.emit(self.sesiones)  # Emite la señal con las sesiones seleccionadas
         self.ui.tablaSatelites.clear()  # Limpiar la tabla antes de recargar los datos
         self.cargar_datos()  # Recargar los datos de los satélites en la tabla
 
     def cargar_datos(self):
-        #OBJ: Cargar los datos de los satélites en la tabla
-        #PRE: Lista de sesiones debe estar cargada
+        #OBJ: Cargar los datos de los pases en la tabla
         #POST: Tabla de satélites se llena con los datos de los satélites
+
         cabeceras = [
             "","Sesión","Longitud de onda", "Nombre Satélite", "  Hora  ", "  Estado  ",
             " NP RMS (mm)  ", "  NP SD (mm)  ", "Num de NPs", "Retornos por NP", "Gráficas"
         ]
+        #Las comumnas son el checkbox, el numero de sesion, la longitud de onda, el nombre del satelite,
+        #la hora de cada satelite, el estado del satelite, 
+        # el RMS, la SD, el numero de NPs, los retornos captados por NP y la grafica de cada uno
+        
         fila = 0
         self.ui.tablaSatelites.setRowCount(fila)
         self.ui.tablaSatelites.verticalHeader().setVisible(False)
         self.ui.tablaSatelites.setColumnCount(cabeceras.__len__())  # Número de columnas
         self.ui.tablaSatelites.setHorizontalHeaderLabels(cabeceras)
-        #Las comumnas son el numero de sesion, el nombre del satelite,
-        #la hora de cada satelite, el estado del satelite, 
-        # el RMS, la SD, el numero de NPs, los retornos captados por NP y la grafica de cada uno
-
-
-        # Evitar que el usuario cambie el tamaño de las columnas y añador un color de fondo a las cabeceras
+        
+        # Evitar que el usuario cambie el tamaño de las columnas y añade un color al fondo de las cabeceras
         header = self.ui.tablaSatelites.horizontalHeader()
         header.setSectionResizeMode(header.ResizeMode.Fixed)
         self.ui.tablaSatelites.horizontalHeader().setStyleSheet("QHeaderView::section { background-color: lightgray; }")
@@ -103,7 +109,7 @@ class SatelitesWindow(QWidget):
         self.ui.tablaSatelites.setColumnWidth(0, 40)  # Ancho de la columna del checkbox
 
 
-        #Tamaño de las imagenes
+        #Tamaño de las imagenes/graficas
         TAM_X = 210  # Ancho deseado de la imagen
         TAM_Y = 130   # Alto deseado de la imagen
 
@@ -115,26 +121,26 @@ class SatelitesWindow(QWidget):
             return item 
 
         #Recorre las sesiones seleccionadas y carga los datos de los satélites 
-        for sesion in self.sesiones: 
+        for sesion in self.sesiones: #Sesiones seleccionadas
             #Recorre todas las sesiones leyendo los datos de los satelites
-            # o bien del .csv o bien de los archivos .frd
+            # o bien del .csv o bien saca el nombre de los archivos .frd
 
             ruta_sesion = f"{self.ruta_sesion_fecha}/{sesion}" # Ruta de la sesión
-            datos_sesion_satelites = self.extraer_datos_satelite(ruta_sesion) 
+            datos_sesion_satelites = self.extraer_datos_satelite(ruta_sesion) # Extrae los datos de los satélites de la sesión
             self.datos_satelites.extend(datos_sesion_satelites) # Añade los datos de los satélites a la lista de datos
             
-            for datos in datos_sesion_satelites:
+            for datos in datos_sesion_satelites: #Pases de la sesión
+                
                 self.ui.tablaSatelites.insertRow(fila)
                 # Añadir checkbox en la primera columna
                 checkbox = QCheckBox()
                 checkbox.setStyleSheet("margin-left:13px;")  # Añadir margen al checkbox
                 self.ui.tablaSatelites.setCellWidget(fila, 0, checkbox)
-
                 
                 # Añadir los datos del satélite en las columnas correspondientes
                 self.ui.tablaSatelites.setItem(fila, 1, item_centrado(sesion))
 
-                #Añadir longitud de onda, si 1064.0 poner en rojo, si 532.0 poner en verde
+                #longitud de onda, si 1064.0 poner en rojo, si 532.0 poner en verde
                 if datos["longitud_onda"] == str(1064.0):
                     item_longitud_onda = item_centrado(datos["longitud_onda"])
                     item_longitud_onda.setForeground(QColor("#E73D3D"))  # Letras en blanco
@@ -148,7 +154,7 @@ class SatelitesWindow(QWidget):
                 self.ui.tablaSatelites.setItem(fila, 3, item_centrado(datos["NomSat"]))
                 self.ui.tablaSatelites.setItem(fila, 4, item_centrado(datos["hora"]))
 
-                # Si el estado es "Fallo", cambiar el color de la celda a rojo
+                # Depende del estado, el fondo varía
                 if datos["estado"].lower() == "passed." or datos["estado"].lower() == "success":
                     item_estado = item_centrado(datos["estado"])
                     item_estado.setBackground(Qt.GlobalColor.green)
@@ -187,6 +193,7 @@ class SatelitesWindow(QWidget):
         #OBJ: Extraer los datos de los satélites de una sesión
         #PRE: Ruta de la sesión debe ser válida
         #POST: Devuelve una lista de diccionarios con los datos de los satélites
+        #IN: ruta_sesion_input(str): Ruta de la sesión
 
         archivo_csv = (f"{ruta_sesion_input}/session_info_transposed.csv")
         resultados_lista = [] #Lista para almacenar los los diccionarios de cada satélite
@@ -194,8 +201,8 @@ class SatelitesWindow(QWidget):
         lista_satelites_frd = [] #Lista con los nombres de los archivos .frd encontrados en la subcarpeta RAW
         
         #Obtengo nombre por lectura de archivo en subcarpeta RAW
-        # Ruta a la subcarpeta
-        ruta_RAW = (f"{ruta_sesion_input}/RAW")
+
+        ruta_RAW = (f"{ruta_sesion_input}/RAW")# Ruta a la subcarpeta RAW
         if os.path.exists(ruta_RAW): # si existe la ruta de la subcarpeta RAW, se buscan los archivos .frd
             for nombre_archivo in os.listdir(ruta_RAW):
                 if nombre_archivo.endswith(".frd"):
@@ -222,9 +229,9 @@ class SatelitesWindow(QWidget):
                         RMS = obtener(19) # Columna 20 para el RMS
                         NP_mm = obtener(21) # Columna 22 para el NP en mm
                         estao_leido  = obtener(42)  # Columna 43 para el estado
-                        ruta_satelite = ruta_sesion_input
+                        ruta_satelite = ruta_sesion_input #Ruta de la sesion del pase
                         nombre_fr2 = obtener(1) # nombre del archivo FR2
-                        nombre_cpf = obtener(2)
+                        nombre_cpf = obtener(2) # nombre del archivo CPF
                         nombre_np2 = obtener(3) # nombre del archivo NP2
                         nombre_png = obtener(4) # #nombre de la gráfica (formato: PNG/grafA.png)
                         
@@ -247,27 +254,26 @@ class SatelitesWindow(QWidget):
                         except:
                             hora = "-"
                             nombre = "-"
-                        #Compruebo el valor de la columna 43, y si es "fail", lo cambio a "Fallo"
                         resultados= { 
-                            'NomSat': nombre,
-                            'fecha_medicion': fecha_medicion,
-                            'hora': hora,
-                            'estado': estao_leido,
-                            'rms': RMS,
-                            'sd': NP_mm,
-                            'longitud_onda': longitud_onda,
-                            'num_nps': NPs,
-                            'retornos_por_np': ObsPerNp,
-                            'ruta_foto': ruta_foto,
-                            'nombre_archivo': fecha_hora_nombre,
-                            'ruta_satelite': ruta_satelite,
+                            'NomSat': nombre, # Nombre del satélite
+                            'fecha_medicion': fecha_medicion, # Fecha de observación
+                            'hora': hora, # Hora de observación
+                            'estado': estao_leido, # Estado del pase
+                            'rms': RMS, # Root Mean Square del pase
+                            'sd': NP_mm, # Standar Deviation del pase
+                            'longitud_onda': longitud_onda, # Longitud de onda
+                            'num_nps': NPs, # Número de Puntos Normales
+                            'retornos_por_np': ObsPerNp, # Retornos por NP
+                            'ruta_foto': ruta_foto, # Ruta de la gráfica
+                            'nombre_archivo': fecha_hora_nombre, # Nombre del archivo .FRD
+                            'ruta_satelite': ruta_satelite, # Ruta del satélite
                             'ruta_fr2': ruta_fr2,  # Ruta del archivo FR2
                             'ruta_cpf': ruta_cpf,  # Ruta del archivo CPF
                             'ruta_np2': ruta_np2   # Ruta del archivo NP2
 
                         } #Diccionario con los datos del satélite
                         resultados_lista.append(resultados) #Añade el diccionario a la lista de resultados
-                    else:
+                    else: # Si no está en la lista de satélites con .FRD
                         continue    
         else: # CSV no exite, buscar en la subcarpeta RAW
             nombre = "-" 
@@ -305,7 +311,6 @@ class SatelitesWindow(QWidget):
                                     nombre_png = "grafA.png"
                                     ruta_np2 = None
                                     ruta_fr2 = None
-                                    #print(f"Error al encontrar archivos FR2 o NP2: {e}")
                                 partes_nombre = nombre_archivo_sin_ext.split('_')
                                 partes_nombre = partes_nombre[:-1]
                                 nombre_cpf = f"{partes_nombre[0]}_{partes_nombre[1]}_{partes_nombre[2]}"
@@ -350,6 +355,7 @@ class SatelitesWindow(QWidget):
     def seleccionar_todos(self):
         #OBJ: Seleccionar o deseleccionar todos los checkboxes de la tabla
         #POST: Marca o desmarca todos los checkboxes de la tabla
+
         seleccionar = self.ui.SelectAll.isChecked()
         for fila in range(self.ui.tablaSatelites.rowCount()):
             checkbox = self.ui.tablaSatelites.cellWidget(fila, 0)
@@ -358,6 +364,7 @@ class SatelitesWindow(QWidget):
     def ProcesadoMan(self):
         #OBJ: Lama a copiar_archivos para crear la nueva sesión y llama a NPgo en modo manual
         #PRE: Deben estar seleccionados los satélites a procesar
+
         seleccionados = self.checkboxes_seleccionados()
         if not seleccionados:
             QMessageBox.warning(self, "Advertencia", f"No hay satélites seleccionados para procesar.")
@@ -380,6 +387,7 @@ class SatelitesWindow(QWidget):
     def ProcesadoAuto(self):
         #OBJ: Lama a copiar_archivos para crear la nueva sesión y llama a NPgo en modo automático
         #PRE: Deben estar seleccionados los satélites a procesar
+
         seleccionados = self.checkboxes_seleccionados()
         if not seleccionados:
             QMessageBox.warning(self, "Advertencia", f"No hay satélites seleccionados para procesar.")
@@ -404,6 +412,7 @@ class SatelitesWindow(QWidget):
         #OBJ: Copiar los archivos de los satélites seleccionados a una nueva carpeta de sesion (SessionUltimo+1)
         #PRE: "Seleccionados" no debe estar vacío, todos los satélites deben ser de la misma sesión
         #POST: Devuelve una lista con los nombres de los satélites cuyos archivos no se pudieron copiar
+        #IN: seleccionados(list): Lista de índices de las filas seleccionadas en la tabla
         
         # Buscar la última carpeta SessionX en la ruta de sesiones
         sesiones_path = self.ruta_sesion_fecha #Sesion de la fecha del procesado

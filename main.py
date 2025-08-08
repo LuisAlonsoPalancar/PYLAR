@@ -4,7 +4,7 @@
 ----------------------------------
 Nombre del archivo:     main.py
 Descripción:            Este script inicia la aplicación principal llamando 
-                        a la ventana de control principal.
+                        al control de la ventana principal.
 
 Entrada(s):             
 Salida(s):              
