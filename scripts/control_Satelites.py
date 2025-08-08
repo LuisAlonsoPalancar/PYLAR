@@ -493,9 +493,9 @@ class SatelitesWindow(QWidget):
         if not seleccionados:
             QMessageBox.warning(self, "Advertencia", f"No hay satelites seleccionados para subir.")        
         else:
-            lista_dirs_fr2 = []
-            lista_dirs_np2 = []
-            lista_errores = []
+            lista_dirs_fr2 = [] # Lista de rutas de archivos .fr2
+            lista_dirs_np2 = [] # Lista de rutas de archivos .np2
+            lista_errores = []  # Lista de pases que han generado errores
             i = 0  # Contador para ajustar el índice de las filas restantes
             for fila in seleccionados:
                 satelite_selecc = self.datos_satelites[fila]
@@ -569,7 +569,7 @@ class SatelitesWindow(QWidget):
 
     
     def Eliminar_datos(self):
-        #OBJ: Eliminar los datos de los satélites seleccionados de los ficheros de datos
+        #OBJ: Eliminar los datos de los satélites seleccionados de los ficheros de datos y los ficheros de los pases
         #PRE: Deben estar seleccionados los satélites a eliminar
         
         seleccionados = self.checkboxes_seleccionados()
@@ -586,126 +586,128 @@ class SatelitesWindow(QWidget):
                 QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel
             ) # Muestra un mensaje de confirmación con los pases seleccionadas
 
-        if respuesta == QMessageBox.StandardButton.Ok:
-            satelites_eliminados = []
-            i=0
-            for fila in seleccionados:
-                satelite_selecc = self.datos_satelites[fila]
+            if respuesta == QMessageBox.StandardButton.Ok:
+                satelites_eliminados = []
+                i=0
+                for fila in seleccionados:
+                    satelite_selecc = self.datos_satelites[fila]
+                    try:
+                        if satelite_selecc['ruta_cpf'] and os.path.exists(satelite_selecc['ruta_cpf']):
+                            try:
+                                os.remove(satelite_selecc['ruta_cpf'])
+                            except Exception as e:
+                                print(f"Error al eliminar {satelite_selecc['ruta_cpf']}: {e}")
+                        else:
+                            print(f"Archivo no encontrado: {satelite_selecc['ruta_cpf']}")
+                        ruta_fr2 = satelite_selecc['ruta_fr2']
+                        if ruta_fr2 and os.path.exists(ruta_fr2):
+                            try:
+                                os.remove(ruta_fr2)
+                            except Exception as e:
+                                print(f"Error al eliminar {ruta_fr2}: {e}")
+                        else:
+                            print(f"Archivo no encontrado: {ruta_fr2}")
+                        if satelite_selecc['ruta_np2'] and os.path.exists(satelite_selecc['ruta_np2']):
+                            try:
+                                os.remove(satelite_selecc['ruta_np2'])
+                            except Exception as e:
+                                print(f"Error al eliminar {satelite_selecc['ruta_np2']}: {e}")
+                        else:
+                            print(f"Archivo no encontrado: {satelite_selecc['ruta_np2']}")
+                        # Eliminar la imagen de la gráfica
+                        if satelite_selecc['ruta_foto'] and os.path.exists(satelite_selecc['ruta_foto']):
+                            try:
+                                os.remove(satelite_selecc['ruta_foto'])
+                            except Exception as e:
+                                print(f"Error al eliminar {satelite_selecc['ruta_foto']}: {e}")
+                        else:
+                            print(f"Archivo no encontrado: {satelite_selecc['ruta_foto']}")
+
+                        if os.path.exists(f"{satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd"):
+                            try:
+                                os.remove(f"{satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd")
+                            except Exception as e:
+                                print(f"Error al eliminar {satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd: {e}")
+                        else:
+                            print(f"Archivo no encontrado: {satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd")
+                        
+                        # Eliminar la fila de la tabla y de la lista de datos
+                        self.ui.tablaSatelites.removeRow(fila - i)  # -i para ajustar el índice después de eliminar
+                        satelites_eliminados.append(satelite_selecc['nombre_archivo'])
+                        # Eliminar la fila correspondiente del archivo CSV
+                        self.datos_satelites[fila]= None  # Limpiar los datos del satélite eliminado
+                        i += 1  # Incrementar el contador para ajustar el índice de las filas restantes
+                    except Exception as e:
+                        print(f"Error al procesar el satélite seleccionado: {e}")
+                        print(f"Nombre del satélite: {satelite_selecc['NomSat']}")
+                self.datos_satelites = [s for s in self.datos_satelites if s is not None]  # Filtrar los None
+
                 try:
-                    if satelite_selecc['ruta_cpf'] and os.path.exists(satelite_selecc['ruta_cpf']):
-                        try:
-                            os.remove(satelite_selecc['ruta_cpf'])
-                        except Exception as e:
-                            print(f"Error al eliminar {satelite_selecc['ruta_cpf']}: {e}")
-                    else:
-                        print(f"Archivo no encontrado: {satelite_selecc['ruta_cpf']}")
-                    ruta_fr2 = satelite_selecc['ruta_fr2']
-                    if ruta_fr2 and os.path.exists(ruta_fr2):
-                        try:
-                            os.remove(ruta_fr2)
-                        except Exception as e:
-                            print(f"Error al eliminar {ruta_fr2}: {e}")
-                    else:
-                        print(f"Archivo no encontrado: {ruta_fr2}")
-                    if satelite_selecc['ruta_np2'] and os.path.exists(satelite_selecc['ruta_np2']):
-                        try:
-                            os.remove(satelite_selecc['ruta_np2'])
-                        except Exception as e:
-                            print(f"Error al eliminar {satelite_selecc['ruta_np2']}: {e}")
-                    else:
-                        print(f"Archivo no encontrado: {satelite_selecc['ruta_np2']}")
-                    # Eliminar la imagen de la gráfica
-                    if satelite_selecc['ruta_foto'] and os.path.exists(satelite_selecc['ruta_foto']):
-                        try:
-                            os.remove(satelite_selecc['ruta_foto'])
-                        except Exception as e:
-                            print(f"Error al eliminar {satelite_selecc['ruta_foto']}: {e}")
-                    else:
-                        print(f"Archivo no encontrado: {satelite_selecc['ruta_foto']}")
-
-                    if os.path.exists(f"{satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd"):
-                        try:
-                            os.remove(f"{satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd")
-                        except Exception as e:
-                            print(f"Error al eliminar {satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd: {e}")
-                    else:
-                        print(f"Archivo no encontrado: {satelite_selecc['ruta_satelite']}/RAW/{satelite_selecc['nombre_archivo']}.frd")
-                    # Eliminar la fila de la tabla y de la lista de datos
-                    self.ui.tablaSatelites.removeRow(fila - i)  # -i para ajustar el índice después de eliminar
-                    satelites_eliminados.append(satelite_selecc['nombre_archivo'])
-                    # Eliminar la fila correspondiente del archivo CSV
-                    self.datos_satelites[fila]= None  # Limpiar los datos del satélite eliminado
-                    i += 1  # Incrementar el contador para ajustar el índice de las filas restantes
+                    archivo_csv = os.path.join(satelite_selecc['ruta_satelite'], "session_info_transposed.csv")
+                    if os.path.exists(archivo_csv):
+                        filas_nuevas = []
+                        with open(archivo_csv, newline='', encoding='utf-8') as f:
+                            reader = list(csv.reader(f))
+                            encabezados = reader[0]
+                            for row in reader[1:]:
+                                if row and row[0] not in satelites_eliminados:
+                                    filas_nuevas.append(row)
+                        with open(archivo_csv, 'w', newline='', encoding='utf-8') as f:
+                            writer = csv.writer(f)
+                            writer.writerow(encabezados)
+                            writer.writerows(filas_nuevas)
+                            f.close()
                 except Exception as e:
-                    print(f"Error al procesar el satélite seleccionado: {e}")
-                    print(f"Nombre del satélite: {satelite_selecc['NomSat']}")
-            self.datos_satelites = [s for s in self.datos_satelites if s is not None]  # Filtrar los None
-
-            try:
-                archivo_csv = os.path.join(satelite_selecc['ruta_satelite'], "session_info_transposed.csv")
-                if os.path.exists(archivo_csv):
-                    filas_nuevas = []
-                    with open(archivo_csv, newline='', encoding='utf-8') as f:
-                        reader = list(csv.reader(f))
-                        encabezados = reader[0]
-                        for row in reader[1:]:
-                            if row and row[0] not in satelites_eliminados:
-                                filas_nuevas.append(row)
-                    with open(archivo_csv, 'w', newline='', encoding='utf-8') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(encabezados)
-                        writer.writerows(filas_nuevas)
-                        f.close()
-            except Exception as e:
-                print(f"Error al eliminar la fila del CSV: {e}")
-                # Eliminar también las filas correspondientes del archivo sesion_info.csv si existe
-            try:
-                archivo_info = os.path.join(satelite_selecc['ruta_satelite'], "session_info.csv")
-                if os.path.exists(archivo_info):
-                    with open(archivo_info, newline='', encoding='utf-8') as f:
-                        reader = list(csv.reader(f))
-                        filas = reader
-                        # Transponer para trabajar por columnas (cada columna es un satélite)
-                        columnas = list(zip(*filas))
-                        # Buscar índices de columnas a eliminar (por nombre_archivo)
-                        indices_a_eliminar = []
-                        for idx, col in enumerate(columnas):
-                            if idx == 0:
-                                continue  # Saltar encabezado
-                            if col[0] in satelites_eliminados:
-                                indices_a_eliminar.append(idx)
-                        # Eliminar columnas marcadas
-                        columnas_nuevas = [col for idx, col in enumerate(columnas) if idx not in indices_a_eliminar]
-                        # Volver a filas
-                        filas_nuevas = list(zip(*columnas_nuevas))
-                    with open(archivo_info, 'w', newline='', encoding='utf-8') as f:
-                        writer = csv.writer(f)
-                        writer.writerows(filas_nuevas)
-            except Exception as e:
-                print(f"Error al eliminar columnas del CSV sesion_info.csv: {e}")
-                # Eliminar también los datos correspondientes del archivo session_info.json si existe
-            try:
-                archivo_json = os.path.join(satelite_selecc['ruta_satelite'], "session_info.json")
-                if os.path.exists(archivo_json):
-                    with open(archivo_json, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                    # Suponiendo que los datos de los satélites están en una lista o dict bajo una clave conocida
-                    # Aquí se asume que es una lista de dicts con clave 'nombre_archivo'
-                    for clave in satelites_eliminados:
-                        data.pop(clave, None)
-                    with open(archivo_json, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
-            except Exception as e:
-                print(f"Error al eliminar datos del JSON session_info.json: {e}")
-        else:
-            pass  # Si el usuario cancela la operación, no se hace nada
+                    print(f"Error al eliminar la fila del CSV: {e}")
+                    # Eliminar también las filas correspondientes del archivo sesion_info.csv si existe
+                try:
+                    archivo_info = os.path.join(satelite_selecc['ruta_satelite'], "session_info.csv")
+                    if os.path.exists(archivo_info):
+                        with open(archivo_info, newline='', encoding='utf-8') as f:
+                            reader = list(csv.reader(f))
+                            filas = reader
+                            # Transponer para trabajar por columnas (cada columna es un satélite)
+                            columnas = list(zip(*filas))
+                            # Buscar índices de columnas a eliminar (por nombre_archivo)
+                            indices_a_eliminar = []
+                            for idx, col in enumerate(columnas):
+                                if idx == 0:
+                                    continue  # Saltar encabezado
+                                if col[0] in satelites_eliminados:
+                                    indices_a_eliminar.append(idx)
+                            # Eliminar columnas marcadas
+                            columnas_nuevas = [col for idx, col in enumerate(columnas) if idx not in indices_a_eliminar]
+                            # Volver a filas
+                            filas_nuevas = list(zip(*columnas_nuevas))
+                        with open(archivo_info, 'w', newline='', encoding='utf-8') as f:
+                            writer = csv.writer(f)
+                            writer.writerows(filas_nuevas)
+                except Exception as e:
+                    print(f"Error al eliminar columnas del CSV sesion_info.csv: {e}")
+                    # Eliminar también los datos correspondientes del archivo session_info.json si existe
+                try:
+                    archivo_json = os.path.join(satelite_selecc['ruta_satelite'], "session_info.json")
+                    if os.path.exists(archivo_json):
+                        with open(archivo_json, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                        # Suponiendo que los datos de los satélites están en una lista o dict bajo una clave conocida
+                        # Aquí se asume que es una lista de dicts con clave 'nombre_archivo'
+                        for clave in satelites_eliminados:
+                            data.pop(clave, None)
+                        with open(archivo_json, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                except Exception as e:
+                    print(f"Error al eliminar datos del JSON session_info.json: {e}")
+            else:
+                pass  # Si el usuario cancela la operación, no se hace nada
     
     def encontrar_archivo_fr2_np2(self,directorio, nombre, fecha, hora):
-
         #OBJ: Encontrar los archivos .fr2 y .np2 de un satélite
         #PRE: El directorio debe existir y contener los archivos .fr2 y .np2
         #POST: Devuelve las rutas de los archivos .fr2 y .np2 si existen, si no devuelve None
-        
+        #IN: directorio(str): Ruta del directorio donde buscar los archivos, nombre(str): Nombre del satélite, 
+        #IN: fecha(str): Fecha en formato YYYYMMDD, hora(str): Hora en formato HHMM
+
         hora = hora.replace(":", "")  # Eliminar los dos puntos de la hora para que coincida con el patrón
         patron = re.compile(rf"\d{{4}}_{re.escape(nombre)}_[A-Z]{{3}}_{fecha}_{hora}_\d{{2}}\.fr2$", re.IGNORECASE)
         ruta_fr2 = None
@@ -721,6 +723,3 @@ class SatelitesWindow(QWidget):
                 if patron.match(archivo):
                     ruta_np2 = os.path.join(directorio_npt,archivo)
         return ruta_fr2, ruta_np2
-    
-    def cerrar(self):
-        sys.exit()

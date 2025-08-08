@@ -18,13 +18,15 @@ from PyQt6.QtCore import Qt,pyqtSignal
 
 from vistas.Window_Sesiones_ui import Ui_Form as Ventana_lista_sesiones  # Ventana Sesiones (esta)
 class SesionesWindow(QWidget):
-    sesiones_seleccionadas = pyqtSignal(list)
+    sesiones_seleccionadas = pyqtSignal(list) #signal que emite la lista de sesiones seleccionadas
 
     def __init__(self, fecha, sesiones):
         super().__init__()
+
         self.fecha = fecha  # Guarda la fecha recibida
         self.ui = Ventana_lista_sesiones()  # Crear una instancia de la clase
         self.ui.setupUi(self)  # Configurar la interfaz de usuario
+
         self.sesiones = sesiones  # Lista de sesiones seleccionadas entrantes
 
         #Formato de carpetas: Sessions_yyyymmdd
@@ -53,11 +55,11 @@ class SesionesWindow(QWidget):
         #OBJ: Cargar subarpetas de la fecha indicada por la vaRiable fecha,cada subcapeta es una sesión de Scope
         #PRE: Ruta base debe ser válida
         #POST: Lista de carpetas se llena con los nombres de las SESIONES encontradas
-            
+        #IN: ruta_entrada(str): Ruta de entrada donde buscar las sesiones
+
         self.ui.listaCarpetas.clear()  # Limpiar la lista antes de agregar elementos
         if os.path.exists(ruta_entrada):
-            #print(f"Buscando subcarpetas en: {ruta_entrada}")
-            sesiones_fecha = []
+            sesiones_fecha = [] #Sesiones de la fecha seleccionada
             for sesion in os.listdir(ruta_entrada):  # Recorre y añade los nombres  de las carpetas (sesiones)
                 ruta_completa = os.path.join(ruta_entrada, sesion)
                 if os.path.isdir(ruta_completa):  # Verifica si es un directorio/carpeta
@@ -69,12 +71,12 @@ class SesionesWindow(QWidget):
                 self.ui.listaCarpetas.addItem(item)  # Añade a la lista
         else:
             print(f"La ruta {ruta_entrada} no existe. Sesión no existente?.")
-            print(ruta_entrada)
 
     def contar_seleccionadas(self):
         #OBJ: Contar las carpetas seleccionadas y mostrar un mensaje de confirmación
         #PRE: Lista de carpetas debe estar cargada
         #POST: Muestra un mensaje con las carpetas seleccionadas y pregunta si se desea continuar
+
         seleccionadas = [] # Lista para almacenar las carpetas seleccionadas
         for i in range(self.ui.listaCarpetas.count()): #Cuenta las seleccionadas
             item = self.ui.listaCarpetas.item(i)
@@ -96,4 +98,4 @@ class SesionesWindow(QWidget):
             self.sesiones_seleccionadas.emit(seleccionadas)  # Emite la señal con las carpetas seleccionadas
             self.close()  # Cierra la ventana después de enviar
         else:
-            print("Operación cancelada.")
+            pass
