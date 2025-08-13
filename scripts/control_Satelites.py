@@ -44,12 +44,12 @@ class SatelitesWindow(QWidget):
         self.fecha_str = self.fecha_input.toString("yyyyMMdd")  # Fecha en formato yyyyMMdd
 
         # RUTAS DE PRUEBAS LOCALES
-        #ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
-        #ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
-        #self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
+        ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
+        ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
+        self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
 
         # RUTA EN PC DE ESTACION
-        self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
+        #self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
 
         # Establecer la fecha en el widget, en formato dd/MM/yyyy
         self.ui.fecha_entrada.setStyleSheet("font-size: 14pt; font-weight: 700;")
@@ -244,7 +244,34 @@ class SatelitesWindow(QWidget):
                         #Seleccionar de RMS el numero entero y 2 decimales
                         RMS = f"{float(RMS):.2f}" if RMS != "-" else "-"
                         NP_mm = f"{float(NP_mm):.2f}" if NP_mm != "-" else "-"
-                        
+                        if (not os.path.exists(ruta_cpf)):
+                            try:
+                                patron = re.compile(r"\d{8}_(\d{4})_(.*?)_\w")
+                                coincidencia = patron.match(fecha_hora_nombre)
+                                if coincidencia:
+                                    fecha_medicion = coincidencia.group(0)[:8]  # yyyyMMdd (primeros 8 dígitos)
+                                    hora = f"{coincidencia.group(1)[:2]}:{coincidencia.group(1)[2:]}"  # Formato HH:MM
+                                    nombre = coincidencia.group(2)
+                                    # Eliminar la cadena ".frd" del fecha_hora_nombre
+                                    nombre_archivo_sin_ext = fecha_hora_nombre.replace(".frd", "")
+                                    try:
+                                        ruta_fr2,ruta_np2 = self.encontrar_archivo_fr2_np2(ruta_sesion_input, nombre, fecha_medicion, hora)
+                                        if ruta_np2:
+                                            bueno = ruta_np2.split("/")[-1]
+                                            bueno = bueno.split("\\")[-1]  # Extraer el nombre del archivo sin la ruta
+                                        nombre_png = bueno.replace(".np2", ".png") if bueno else "grafA.png"  # Ruta de la gráfica
+                                    except Exception as e:
+                                        nombre_png = "grafA.png"
+                                        ruta_np2 = None
+                                        ruta_fr2 = None
+                                    partes_nombre = nombre_archivo_sin_ext.split('_')
+                                    partes_nombre = partes_nombre[:-1]
+                                    nombre_cpf = f"{partes_nombre[0]}_{partes_nombre[1]}_{partes_nombre[2]}"
+                                    ruta_cpf = f"{ruta_satelite}/CPF/{nombre_cpf}.cpf"  # Ruta del archivo CPF
+                                    ruta_foto = f"{ruta_satelite}/PNG/{nombre_png}"  # Ruta de la gráfica
+                            except Exception as e:
+                                print(f"Error al procesar el archivo {fecha_hora_nombre}: {e}")
+                                continue
                         # Procesar columna 0 (formato esperado: yyyymmdd_hhmm_nombre_codigo)
                         try: # Divide la cadena para obtener la hora y el nombre del satelite
                             partes = fecha_hora_nombre.split('_')
@@ -471,17 +498,21 @@ class SatelitesWindow(QWidget):
                         os.system(f"cp '{ruta_frd}' '{ruta_destino}/RAW/'")
                         os.system(f"cp '{satelite_selecc['ruta_cpf']}' '{ruta_destino}/CPF/'")
                     except Exception as e:
-                        QMessageBox.critical(self, "Error", f"Error al copiar los archivos de {satelite_selecc['nombre_archivo']}: {e}")
+                        QMessageBox.critical(self, "Error", f"Error al copiar los archivos FRD y CPF de {satelite_selecc['nombre_archivo']}: {e}")
                         lista_errores.append(satelite_selecc['nombre_archivo'])
                         continue
                         #Solo añade en estos casos, ya que son los ficheros que se necesitan para procesar
-                    os.system(f"cp '{satelite_selecc['ruta_foto']}' '{ruta_destino}/PNG/'")
+
+                    if (os.path.exists(satelite_selecc['ruta_foto'])):
+                        os.system(f"cp '{satelite_selecc['ruta_foto']}' '{ruta_destino}/PNG/'")
                     # Copiar el archivo .np2 a la subcarpeta NPT
-                    os.system(f"cp '{satelite_selecc['ruta_np2']}' '{ruta_destino}/NPT/'")
+                    if (satelite_selecc['ruta_np2'] and os.path.exists(satelite_selecc['ruta_np2'])):
+                        os.system(f"cp '{satelite_selecc['ruta_np2']}' '{ruta_destino}/NPT/'")
                     #Copiar el archivo .fr2 a la subcarpeta FRD
-                    os.system(f"cp '{satelite_selecc['ruta_fr2']}' '{ruta_destino}/FRD/'")
+                    if (satelite_selecc['ruta_fr2'] and os.path.exists(satelite_selecc['ruta_fr2'])):
+                        os.system(f"cp '{satelite_selecc['ruta_fr2']}' '{ruta_destino}/FRD/'")
                 except Exception as e:
-                    QMessageBox.critical(self, "Error", f"Error al copiar archivos de {satelite_selecc['nombre_archivo']}: {e}")
+                    QMessageBox.warning(self, "Error", f"Error al copiar archivos secundarios de {satelite_selecc['nombre_archivo']}: {e}")
                     continue
             else:
                 lista_errores.append(satelite_selecc['nombre_archivo'])
@@ -516,8 +547,6 @@ class SatelitesWindow(QWidget):
                         raise FileNotFoundError(f"No se encontraron archivos .fr2 o .np2 para el satélite {nombre_sat}.")    
                 except Exception as e:
                     print(f"Error: {e}")
-                    fr2 = None
-                    np2 = None
                     lista_errores.append(satelite_selecc['nombre_archivo'])
             self.datos_satelites = [s for s in self.datos_satelites if s is not None]  # Filtrar los None
             if lista_errores:
