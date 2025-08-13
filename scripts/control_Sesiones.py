@@ -34,10 +34,14 @@ class SesionesWindow(QWidget):
 
         #Paso de formato de fecha al formato yyyymmdd
         fecha_str = self.fecha.toString("yyyyMMdd")
-        self.ruta_sesion_fecha = f"./Sesiones/Sessions_{fecha_str}"
-        ruta_rel_session_fecha = os.path.relpath(self.ruta_sesion_fecha)
-        self.ruta_base = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
-        #self.ruta_base = f"/opt/scope/data/export/processing/Sessions_{fecha_str}" # Ruta de la sesión
+        
+        # RUTA EN PC LOCAL
+        #self.ruta_sesion_fecha = f"./Sesiones/Sessions_{fecha_str}"
+        #ruta_rel_session_fecha = os.path.relpath(self.ruta_sesion_fecha)
+        #self.ruta_base = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
+
+        # RUTA EN PC DE ESTACION
+        self.ruta_base = f"/opt/scope/data/export/processing/Sessions_{fecha_str}" # Ruta de la sesión
         
         # Establecer la fecha en el widget, en formato dd/MM/yyyy
         self.ui.fecha_entrada.setStyleSheet("font-size: 14pt; font-weight: 700;")
