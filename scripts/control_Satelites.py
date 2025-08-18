@@ -18,7 +18,7 @@ import re
 import paramiko
 import json
 import configparser
-import sys
+import subprocess
 
 from PyQt6.QtWidgets import QWidget, QTableWidgetItem, QCheckBox, QHeaderView, QMessageBox, QProgressDialog
 from PyQt6.QtCore import Qt, pyqtSignal
@@ -86,10 +86,11 @@ class SatelitesWindow(QWidget):
         #OBJ: Cargar los datos de los pases en la tabla
         #POST: Tabla de satélites se llena con los datos de los satélites
 
-        cabeceras = [
+        cabeceras_tabla = [
             "","Sesión","Longitud de onda", "Nombre Satélite", "  Hora  ", "  Estado  ",
             " NP RMS (mm)  ", "  NP SD (mm)  ", "Num de NPs", "Retornos por NP", "Gráficas"
         ]
+
         #Las comumnas son el checkbox, el numero de sesion, la longitud de onda, el nombre del satelite,
         #la hora de cada satelite, el estado del satelite, 
         # el RMS, la SD, el numero de NPs, los retornos captados por NP y la grafica de cada uno
@@ -97,8 +98,8 @@ class SatelitesWindow(QWidget):
         fila = 0
         self.ui.tablaSatelites.setRowCount(fila)
         self.ui.tablaSatelites.verticalHeader().setVisible(False)
-        self.ui.tablaSatelites.setColumnCount(cabeceras.__len__())  # Número de columnas
-        self.ui.tablaSatelites.setHorizontalHeaderLabels(cabeceras)
+        self.ui.tablaSatelites.setColumnCount(cabeceras_tabla.__len__())  # Número de columnas
+        self.ui.tablaSatelites.setHorizontalHeaderLabels(cabeceras_tabla)
         
         # Evitar que el usuario cambie el tamaño de las columnas y añade un color al fondo de las cabeceras
         header = self.ui.tablaSatelites.horizontalHeader()
@@ -201,9 +202,14 @@ class SatelitesWindow(QWidget):
         resultados_lista = [] #Lista para almacenar los los diccionarios de cada satélite
         resultados = {} # Diccionario para almacenar los resultados de un satélite
         lista_satelites_frd = [] #Lista con los nombres de los archivos .frd encontrados en la subcarpeta RAW
-        
-        #Obtengo nombre por lectura de archivo en subcarpeta RAW
+        cabeceras_a_leer = ["","frd","cpf","npt","png","wavelength_nm",
+                            "number_normal_points","observations_per_normal_point",
+                            "fullrate_rms_mm","normal_point_rms_mm","comment"
+        ] # Nombre de las columnas del fichero CSV
+            # (TO BEA): EN CASO DE QUE, EN UN FUTURO, SE CAMBIE LOS NOMBRES DE LAS COLUMNAS DEL CSV
+            # SE DEBERÁ ACTUALIZAR ESTA LISTA
 
+        #Obtengo nombre por lectura de archivo en subcarpeta RAW
         ruta_RAW = (f"{ruta_sesion_input}/RAW")# Ruta a la subcarpeta RAW
         if os.path.exists(ruta_RAW): # si existe la ruta de la subcarpeta RAW, se buscan los archivos .frd
             for nombre_archivo in os.listdir(ruta_RAW):
@@ -216,34 +222,51 @@ class SatelitesWindow(QWidget):
             with open(archivo_csv, newline='') as archivo:
                 lector = csv.reader(archivo)
                 # Leer la primera fila (encabezados)
-                next(lector) # Quitar encabezados
                 def obtener(col_idx): 
                         #OBJ: Obtener el valor de una columna específica de la fila
                         #PRE: La fila debe tener suficientes columnas
                         #POST: Devuelve el valor de la columna o "-" si no hay valor
                         return fila[col_idx] if len(fila) > col_idx and fila[col_idx].strip() != '' else "-"
+                # Leer la primera fila (encabezados)
+                encabezados = next(lector)
+                cabecera_idx = []
+                for cabecera in cabeceras_a_leer:
+                    try:
+                        idx = encabezados.index(cabecera)
+                    except ValueError:
+                        idx = -1  # Si no se encuentra, poner -1
+                    cabecera_idx.append(idx)    
                 for fila in lector:
-                    fecha_hora_nombre = obtener(0) #Nombre del archivo (formato: yyyymmdd_hhmm_nombre_codigo)
+                    fecha_hora_nombre = obtener(cabecera_idx[0]) #Nombre del archivo (formato: yyyymmdd_hhmm_nombre_codigo)
                     if fecha_hora_nombre in lista_satelites_frd:
-                        longitud_onda = obtener(8)  # Longitud de onda
-                        NPs = obtener(14) # Número de NPs
-                        ObsPerNp = obtener(15) # Retornos por NP
-                        RMS = obtener(19) # Columna 20 para el RMS
-                        NP_mm = obtener(21) # Columna 22 para el NP en mm
-                        estao_leido  = obtener(42)  # Columna 43 para el estado
+                        nombre_fr2 = obtener(cabecera_idx[1]) # nombre del archivo FR2
+                        nombre_cpf = obtener(cabecera_idx[2]) # nombre del archivo CPF
+                        nombre_np2 = obtener(cabecera_idx[3]) # nombre del archivo NP2
+                        nombre_png = obtener(cabecera_idx[4]) # #nombre de la gráfica (formato: PNG/grafA.png)
+
+                        longitud_onda = obtener(cabecera_idx[5])  # Longitud de onda
+                        NPs = obtener(cabecera_idx[6]) # Número de NPs
+                        ObsPerNp = obtener(cabecera_idx[7]) # Retornos por NP
+                        RMS = obtener(cabecera_idx[8]) # Columna 20 para el RMS
+                        NP_mm = obtener(cabecera_idx[9]) # Columna 22 para el NP en mm
+                        estao_leido  = obtener(cabecera_idx[10])  # Columna 43 para el estado
                         ruta_satelite = ruta_sesion_input #Ruta de la sesion del pase
-                        nombre_fr2 = obtener(1) # nombre del archivo FR2
-                        nombre_cpf = obtener(2) # nombre del archivo CPF
-                        nombre_np2 = obtener(3) # nombre del archivo NP2
-                        nombre_png = obtener(4) # #nombre de la gráfica (formato: PNG/grafA.png)
+                        
                         
                         ruta_foto = f"{ruta_satelite}/PNG/{nombre_png}"  # Ruta de la gráfica
                         ruta_fr2 = f"{ruta_satelite}/FRD/{nombre_fr2}"   # Ruta del archivo FR2
                         ruta_cpf = f"{ruta_satelite}/CPF/{nombre_cpf}"   # Ruta del archivo CPF
                         ruta_np2 = f"{ruta_satelite}/NPT/{nombre_np2}"   # Ruta del archivo NP2
                         #Seleccionar de RMS el numero entero y 2 decimales
-                        RMS = f"{float(RMS):.2f}" if RMS != "-" else "-"
-                        NP_mm = f"{float(NP_mm):.2f}" if NP_mm != "-" else "-"
+                        try:
+                            RMS = f"{float(RMS):.2f}" if RMS != "-" else "-"
+                        except ValueError:
+                            RMS = "-"
+                        try:
+                            NP_mm = f"{float(NP_mm):.2f}" if NP_mm != "-" else "-"
+                        except ValueError:
+                            NP_mm = "-"
+
                         if (not os.path.exists(ruta_cpf)):
                             try:
                                 patron = re.compile(r"\d{8}_(\d{4})_(.*?)_\w")
@@ -369,7 +392,9 @@ class SatelitesWindow(QWidget):
                             continue    
             else:
                 pass
-        return resultados_lista     
+
+        resultados_lista.sort(key=lambda x:  x['hora'])  # Ordenar por hora
+        return resultados_lista
 
     def checkboxes_seleccionados(self):
         #OBJ: Obtener los índices de las filas seleccionadas en tablaSatelites
@@ -431,9 +456,9 @@ class SatelitesWindow(QWidget):
                 script_path = "/opt/scope/bin/processing/npgo-auto-run.sh"
                 ruta_config = "/opt/scope/bin/processing/config_processing.ini"
                 ruta_sesion_comando = f"{self.ruta_sesion_fecha}"  # Ruta de la sesión
-                comando = f"{script_path} {ruta_config} {ruta_sesion_comando} {entero}"
-                os.system(comando)
-                
+                comando = [script_path, ruta_config, ruta_sesion_comando, str(entero)]
+                # Ejecutar el comando en segundo plano, sin bloquear la interfaz
+                subprocess.Popen(comando)
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Error al llamar a NPgo: {e}")
     
@@ -552,53 +577,59 @@ class SatelitesWindow(QWidget):
             if lista_errores:
                 QMessageBox.warning(self, "Advertencia", f"No se encontraron archivos .fr2 o .np2 para los siguientes satélites:\n{', '.join(lista_errores)}")        
             
-
-            config = configparser.ConfigParser(interpolation=None)
-            ruta_credenciales = os.path.dirname(os.path.dirname(__file__)) + "/" +"datos_externos/sftp_credenciales.ini"
-            config.read(ruta_credenciales)
-
-            host = config['SFTP']['host']
-            puerto = int(config['SFTP']['port'])
-            usuario = config['SFTP']['username']
-            contrasena = config['SFTP']['password']
-            ruta_remota = config['SFTP']['remote_path']
-
             try:
-                # Barra de progreso emergente
-                total = len(lista_dirs_fr2) + len(lista_dirs_np2)
-                progreso = QProgressDialog("Subiendo archivos...", "Cancelar", 0, total, self)
-                progreso.setWindowTitle("Progreso de subida")
-                progreso.setWindowModality(Qt.WindowModality.ApplicationModal)
-                progreso.setAutoClose(True)
-                i = 0  # Contador para actualizar la barra de progreso
+                config = configparser.ConfigParser(interpolation=None)
+                ruta_credenciales = os.path.dirname(os.path.dirname(__file__)) + "/" + "datos_externos/sftp_credenciales.ini"
+                config.read(ruta_credenciales)
 
-                # Establecer conexión SFTP
-                transport = paramiko.Transport((host, puerto))
-                transport.connect(username=usuario, password=contrasena)
-                sftp = paramiko.SFTPClient.from_transport(transport)
+                host = config['SFTP']['host']
+                puerto = int(config['SFTP']['port'])
+                usuario = config['SFTP']['username']
+                contrasena = config['SFTP']['password']
+                ruta_remota = config['SFTP']['remote_path']
 
-                # Subir archivos de ambas listas          
-                for archivo_local in lista_dirs_fr2 + lista_dirs_np2:
-                    if progreso.wasCanceled():
-                        break
-                    if not os.path.exists(archivo_local):
-                        QMessageBox.warning(self, "Archivo no encontrado", f"No existe: {archivo_local}")
-                        continue
-                    nombre = os.path.basename(archivo_local)
-                    ruta_destino = os.path.join(ruta_remota, nombre).replace("\\", "/")
-                    sftp.put(archivo_local, ruta_destino)
-                    i += 1
-                    progreso.setValue(i)
-                    progreso.setLabelText(f"Subiendo: {nombre}, {i} de {total}")
-                sftp.close()
-                transport.close()
-                progreso.close()  # Cerrar la barra de progreso
-                QMessageBox.information(self, "Éxito", "Todos los archivos fueron subidos correctamente")
+                try:
+                    # Barra de progreso emergente
+                    total = len(lista_dirs_fr2) + len(lista_dirs_np2)
+                    progreso = QProgressDialog("Subiendo archivos...", "Cancelar", 0, total, self)
+                    progreso.setWindowTitle("Progreso de subida")
+                    progreso.setWindowModality(Qt.WindowModality.ApplicationModal)
+                    progreso.setAutoClose(True)
+                    i = 0  # Contador para actualizar la barra de progreso
+
+                    # Establecer conexión SFTP
+                    transport = paramiko.Transport((host, puerto))
+                    transport.connect(username=usuario, password=contrasena)
+                    sftp = paramiko.SFTPClient.from_transport(transport)
+
+                    # Subir archivos de ambas listas          
+                    for archivo_local in lista_dirs_fr2 + lista_dirs_np2:
+                        if progreso.wasCanceled():
+                            break
+                        if not os.path.exists(archivo_local):
+                            QMessageBox.warning(self, "Archivo no encontrado", f"No existe: {archivo_local}")
+                            continue
+                        nombre = os.path.basename(archivo_local)
+                        ruta_destino = os.path.join(ruta_remota, nombre).replace("\\", "/")
+                        sftp.put(archivo_local, ruta_destino)
+                        i += 1
+                        progreso.setValue(i)
+                        progreso.setLabelText(f"Subiendo: {nombre}, {i} de {total}")
+                    sftp.close()
+                    transport.close()
+                    progreso.close()  # Cerrar la barra de progreso
+                    QMessageBox.information(self, "Éxito", "Todos los archivos fueron subidos correctamente")
+                except Exception as e2:
+                    progreso.close()
+                    try:
+                        sftp.close()
+                        transport.close()
+                    except Exception as e3:
+                        pass
+                    QMessageBox.critical(self, "Error", f"Error al subir archivos:\n{e2}")
             except Exception as e:
-                progreso.close()
-                QMessageBox.critical(self, "Error", f"Error al subir archivos:\n{e}")
+                QMessageBox.critical(self, "Error", f"Error al leer las credenciales SFTP:\n{e}")
 
-    
     def Eliminar_datos(self):
         #OBJ: Eliminar los datos de los satélites seleccionados de los ficheros de datos y los ficheros de los pases
         #PRE: Deben estar seleccionados los satélites a eliminar
