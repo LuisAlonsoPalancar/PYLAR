@@ -44,12 +44,12 @@ class SatelitesWindow(QWidget):
         self.fecha_str = self.fecha_input.toString("yyyyMMdd")  # Fecha en formato yyyyMMdd
 
         # RUTAS DE PRUEBAS LOCALES
-        #ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
-        #ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
-        #self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
+        ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
+        ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
+        self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
 
         # RUTA EN PC DE ESTACION
-        self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
+        #self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
 
         # Establecer la fecha en el widget, en formato dd/MM/yyyy
         self.ui.fecha_entrada.setStyleSheet("font-size: 14pt; font-weight: 700;")
@@ -127,11 +127,9 @@ class SatelitesWindow(QWidget):
         for sesion in self.sesiones: #Sesiones seleccionadas
             #Recorre todas las sesiones leyendo los datos de los satelites
             # o bien del .csv o bien saca el nombre de los archivos .frd
-
             ruta_sesion = f"{self.ruta_sesion_fecha}/{sesion}" # Ruta de la sesión
             datos_sesion_satelites = self.extraer_datos_satelite(ruta_sesion) # Extrae los datos de los satélites de la sesión
             self.datos_satelites.extend(datos_sesion_satelites) # Añade los datos de los satélites a la lista de datos
-            
             for datos in datos_sesion_satelites: #Pases de la sesión
                 
                 self.ui.tablaSatelites.insertRow(fila)
@@ -158,15 +156,15 @@ class SatelitesWindow(QWidget):
                 self.ui.tablaSatelites.setItem(fila, 4, item_centrado(datos["hora"]))
 
                 # Depende del estado, el fondo varía
-                if datos["estado"].lower() == "passed." or datos["estado"].lower() == "success":
+                if datos["estado"].lower() == "passed." or datos["estado"].lower() == "success" or datos["estado"].lower() == "success.":
                     item_estado = item_centrado(datos["estado"])
                     item_estado.setBackground(Qt.GlobalColor.green)
                     self.ui.tablaSatelites.setItem(fila, 5, item_estado)
-                elif datos["estado"].lower() == "warning":
+                elif datos["estado"].lower() == "warning" or datos["estado"].lower() == "warning.":
                     item_estado = item_centrado(datos["estado"])
                     item_estado.setBackground(Qt.GlobalColor.yellow)
                     self.ui.tablaSatelites.setItem(fila, 5, item_estado)
-                elif datos["estado"].lower() == "fail":
+                elif datos["estado"].lower() == "fail" or datos["estado"].lower() == "fail.":
                     item_estado = item_centrado("Fail.")
                     item_estado.setBackground(Qt.GlobalColor.red)
                     self.ui.tablaSatelites.setItem(fila, 5, item_estado)
@@ -206,8 +204,22 @@ class SatelitesWindow(QWidget):
                             "number_normal_points","observations_per_normal_point",
                             "fullrate_rms_mm","normal_point_rms_mm","comment"
         ] # Nombre de las columnas del fichero CSV
-            # (TO BEA): EN CASO DE QUE, EN UN FUTURO, SE CAMBIE LOS NOMBRES DE LAS COLUMNAS DEL CSV
-            # SE DEBERÁ ACTUALIZAR ESTA LISTA
+
+        # Que es cada entrada en cabeceras_a_leer:
+        # 0: "":  Nombre del archivo (formato: yyyymmdd_hhmm_nombre_codigo)
+        # 1: "frd": Nombre del archivo FR2
+        # 2: "cpf": Nombre del archivo CPF
+        # 3: "npt": Nombre del archivo NP2
+        # 4: "png": Nombre de la gráfica (formato: PNG)
+        # 5: "wavelength_nm": longitud de onda (nm)
+        # 6: "number_normal_points": Numero de puntos normales
+        # 7: "observations_per_normal_point": Observaciones por NP
+        # 8: "fullrate_rms_mm": RMS
+        # 9: "normal_point_rms_mm": Desviacion estandar
+        # 10: "comment": Comentarios (Donde almacenan el estado)
+
+        # (TO BEA): EN CASO DE QUE, EN UN FUTURO, SE CAMBIE LOS NOMBRES DE LAS COLUMNAS DEL CSV
+        # SE DEBERÁ ACTUALIZAR ESTA LISTA
 
         #Obtengo nombre por lectura de archivo en subcarpeta RAW
         ruta_RAW = (f"{ruta_sesion_input}/RAW")# Ruta a la subcarpeta RAW
@@ -223,9 +235,12 @@ class SatelitesWindow(QWidget):
                 lector = csv.reader(archivo)
                 # Leer la primera fila (encabezados)
                 def obtener(col_idx): 
-                        #OBJ: Obtener el valor de una columna específica de la fila
-                        #PRE: La fila debe tener suficientes columnas
-                        #POST: Devuelve el valor de la columna o "-" si no hay valor
+                    #OBJ: Obtener el valor de una columna específica de la fila
+                    #PRE: La fila debe tener suficientes columnas
+                    #POST: Devuelve el valor de la columna o "-" si no hay valor
+                    if col_idx == -1:
+                        return "-"
+                    else:    
                         return fila[col_idx] if len(fila) > col_idx and fila[col_idx].strip() != '' else "-"
                 # Leer la primera fila (encabezados)
                 encabezados = next(lector)
@@ -243,15 +258,13 @@ class SatelitesWindow(QWidget):
                         nombre_cpf = obtener(cabecera_idx[2]) # nombre del archivo CPF
                         nombre_np2 = obtener(cabecera_idx[3]) # nombre del archivo NP2
                         nombre_png = obtener(cabecera_idx[4]) # #nombre de la gráfica (formato: PNG/grafA.png)
-
                         longitud_onda = obtener(cabecera_idx[5])  # Longitud de onda
                         NPs = obtener(cabecera_idx[6]) # Número de NPs
                         ObsPerNp = obtener(cabecera_idx[7]) # Retornos por NP
                         RMS = obtener(cabecera_idx[8]) # Columna 20 para el RMS
                         NP_mm = obtener(cabecera_idx[9]) # Columna 22 para el NP en mm
-                        estao_leido  = obtener(cabecera_idx[10])  # Columna 43 para el estado
+                        estado_leido  = obtener(cabecera_idx[10])  # Columna 43 para el estado
                         ruta_satelite = ruta_sesion_input #Ruta de la sesion del pase
-                        
                         
                         ruta_foto = f"{ruta_satelite}/PNG/{nombre_png}"  # Ruta de la gráfica
                         ruta_fr2 = f"{ruta_satelite}/FRD/{nombre_fr2}"   # Ruta del archivo FR2
@@ -266,8 +279,8 @@ class SatelitesWindow(QWidget):
                             NP_mm = f"{float(NP_mm):.2f}" if NP_mm != "-" else "-"
                         except ValueError:
                             NP_mm = "-"
-
-                        if (not os.path.exists(ruta_cpf)):
+                        # Si el satélite existe, pero está mal procesado (igual que si estado == failed)
+                        if ((not os.path.exists(ruta_cpf)) or (estado_leido.lower() == "fail")):
                             try:
                                 patron = re.compile(r"\d{8}_(\d{4})_(.*?)_\w")
                                 coincidencia = patron.match(fecha_hora_nombre)
@@ -310,7 +323,7 @@ class SatelitesWindow(QWidget):
                             'NomSat': nombre, # Nombre del satélite
                             'fecha_medicion': fecha_medicion, # Fecha de observación
                             'hora': hora, # Hora de observación
-                            'estado': estao_leido, # Estado del pase
+                            'estado': estado_leido, # Estado del pase
                             'rms': RMS, # Root Mean Square del pase
                             'sd': NP_mm, # Standar Deviation del pase
                             'longitud_onda': longitud_onda, # Longitud de onda
@@ -345,54 +358,54 @@ class SatelitesWindow(QWidget):
             # Recorremos los archivos de la subcarpeta
             if os.path.exists(ruta_RAW): # si existe la ruta de la subcarpeta RAW, se buscan los archivos .frd
                 for nombre_archivo in lista_satelites_frd:
-                        try:
-                            coincidencia = patron.match(nombre_archivo)
-                            if coincidencia:
-                                fecha_medicion = coincidencia.group(0)[:8]  # yyyyMMdd (primeros 8 dígitos)
-                                hora = f"{coincidencia.group(1)[:2]}:{coincidencia.group(1)[2:]}"  # Formato HH:MM
-                                nombre = coincidencia.group(2)
-                                # Eliminar la cadena ".frd" del nombre_archivo
-                                nombre_archivo_sin_ext = nombre_archivo.replace(".frd", "")
-                                try:
-                                    ruta_fr2,ruta_np2 = self.encontrar_archivo_fr2_np2(ruta_sesion_input, nombre, fecha_medicion, hora)
-                                    if ruta_np2:
-                                        bueno = ruta_np2.split("/")[-1]
-                                        bueno = bueno.split("\\")[-1]  # Extraer el nombre del archivo sin la ruta
-                                    nombre_png = bueno.replace(".np2", "_manual.png") if bueno else "grafA.png"  # Ruta de la gráfica
-                                except Exception as e:
-                                    nombre_png = "grafA.png"
-                                    ruta_np2 = None
-                                    ruta_fr2 = None
-                                partes_nombre = nombre_archivo_sin_ext.split('_')
-                                partes_nombre = partes_nombre[:-1]
-                                nombre_cpf = f"{partes_nombre[0]}_{partes_nombre[1]}_{partes_nombre[2]}"
-                                ruta_cpf = f"{ruta_satelite}/CPF/{nombre_cpf}.cpf"  # Ruta del archivo CPF
-                                ruta_foto = f"{ruta_satelite}/PNG/{nombre_png}"  # Ruta de la gráfica
-                                resultados= {
-                                    'NomSat': nombre,
-                                    'fecha_medicion': fecha_medicion,
-                                    'hora': hora,
-                                    'estado': '-',
-                                    'rms': RMS,
-                                    'sd': NP_mm,
-                                    'longitud_onda': longitud_onda,
-                                    'num_nps': NPs,
-                                    'retornos_por_np': ObsPerNp,
-                                    'ruta_foto': ruta_foto,
-                                    'nombre_archivo': nombre_archivo_sin_ext,
-                                    'ruta_satelite': ruta_satelite,
+                    try:
+                        coincidencia = patron.match(nombre_archivo)
+                        if coincidencia:
+                            fecha_medicion = coincidencia.group(0)[:8]  # yyyyMMdd (primeros 8 dígitos)
+                            hora = f"{coincidencia.group(1)[:2]}:{coincidencia.group(1)[2:]}"  # Formato HH:MM
+                            nombre = coincidencia.group(2)
+                            # Eliminar la cadena ".frd" del nombre_archivo
+                            nombre_archivo_sin_ext = nombre_archivo.replace(".frd", "")
+                            try:
+                                ruta_fr2,ruta_np2 = self.encontrar_archivo_fr2_np2(ruta_sesion_input, nombre, fecha_medicion, hora)
+                                if ruta_np2:
+                                    bueno = ruta_np2.split("/")[-1]
+                                    bueno = bueno.split("\\")[-1]  # Extraer el nombre del archivo sin la ruta
+                                nombre_png = bueno.replace(".np2", "_manual.png") if bueno else "grafA.png"  # Ruta de la gráfica
+                            except Exception as e:
+                                nombre_png = "grafA.png"
+                                ruta_np2 = None
+                                ruta_fr2 = None
+                            partes_nombre = nombre_archivo_sin_ext.split('_')
+                            partes_nombre = partes_nombre[:-1]
+                            nombre_cpf = f"{partes_nombre[0]}_{partes_nombre[1]}_{partes_nombre[2]}"
+                            ruta_cpf = f"{ruta_satelite}/CPF/{nombre_cpf}.cpf"  # Ruta del archivo CPF
+                            ruta_foto = f"{ruta_satelite}/PNG/{nombre_png}"  # Ruta de la gráfica
+                            resultados= {
+                                'NomSat': nombre,
+                                'fecha_medicion': fecha_medicion,
+                                'hora': hora,
+                                'estado': '-',
+                                'rms': RMS,
+                                'sd': NP_mm,
+                                'longitud_onda': longitud_onda,
+                                'num_nps': NPs,
+                                'retornos_por_np': ObsPerNp,
+                                'ruta_foto': ruta_foto,
+                                'nombre_archivo': nombre_archivo_sin_ext,
+                                'ruta_satelite': ruta_satelite,
 
-                                    'ruta_fr2': ruta_fr2,  # Ruta del archivo FR2
-                                    'ruta_cpf':ruta_cpf,  # Ruta del archivo CPF
-                                    'ruta_np2': ruta_np2   # Ruta del archivo NP2
-                                }
-                                resultados_lista.append(resultados)
-                        except Exception as e:
-                            print(f"Error al procesar el archivo {nombre_archivo}: {e}")
-                            continue    
+                                'ruta_fr2': ruta_fr2,  # Ruta del archivo FR2
+                                'ruta_cpf':ruta_cpf,  # Ruta del archivo CPF
+                                'ruta_np2': ruta_np2   # Ruta del archivo NP2
+                            }
+                            resultados_lista.append(resultados)
+                    except Exception as e:
+                        print(f"Error al procesar el archivo {nombre_archivo}: {e}")
+                        continue    
             else:
                 pass
-
+        
         resultados_lista.sort(key=lambda x:  x['hora'])  # Ordenar por hora
         return resultados_lista
 
@@ -433,8 +446,10 @@ class SatelitesWindow(QWidget):
                 script_path = "/opt/scope/bin/processing/npgo-manual-run.sh"
                 ruta_config = "/opt/scope/bin/processing/config_processing.ini"
                 ruta_sesion_comando = f"{self.ruta_sesion_fecha}"  # Ruta de la sesión
-                comando = f"{script_path} {ruta_config} {ruta_sesion_comando}"
-                os.system(comando)
+                
+                comando = [script_path, ruta_config, ruta_sesion_comando]
+                # Ejecutar el comando en segundo plano, sin bloquear la interfaz
+                subprocess.Popen(comando)
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Error al llamar a NPgo: {e}")
             
@@ -537,7 +552,7 @@ class SatelitesWindow(QWidget):
                     if (satelite_selecc['ruta_fr2'] and os.path.exists(satelite_selecc['ruta_fr2'])):
                         os.system(f"cp '{satelite_selecc['ruta_fr2']}' '{ruta_destino}/FRD/'")
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", f"Error al copiar archivos secundarios de {satelite_selecc['nombre_archivo']}: {e}")
+                    QMessageBox.warning(self, "Error", f"Error al copiar los archivos PNG, NP2 O FR2 de {satelite_selecc['nombre_archivo']}: {e}")
                     continue
             else:
                 lista_errores.append(satelite_selecc['nombre_archivo'])
@@ -604,17 +619,22 @@ class SatelitesWindow(QWidget):
 
                     # Subir archivos de ambas listas          
                     for archivo_local in lista_dirs_fr2 + lista_dirs_np2:
-                        if progreso.wasCanceled():
-                            break
-                        if not os.path.exists(archivo_local):
-                            QMessageBox.warning(self, "Archivo no encontrado", f"No existe: {archivo_local}")
-                            continue
-                        nombre = os.path.basename(archivo_local)
-                        ruta_destino = os.path.join(ruta_remota, nombre).replace("\\", "/")
-                        sftp.put(archivo_local, ruta_destino)
-                        i += 1
-                        progreso.setValue(i)
-                        progreso.setLabelText(f"Subiendo: {nombre}, {i} de {total}")
+                        if not transport.is_active():
+                            raise Exception("La conexión SFTP se ha perdido.")
+                        try:
+                            if progreso.wasCanceled():
+                                break
+                            if not os.path.exists(archivo_local):
+                                QMessageBox.warning(self, "Archivo no encontrado", f"No existe: {archivo_local}")
+                                continue
+                            nombre = os.path.basename(archivo_local)
+                            ruta_destino = os.path.join(ruta_remota, nombre).replace("\\", "/")
+                            sftp.put(archivo_local, ruta_destino)
+                            i += 1
+                            progreso.setValue(i)
+                            progreso.setLabelText(f"Subiendo: {nombre}, {i} de {total}")
+                        except Exception as e:
+                            QMessageBox.warning(self, f"Error mientras se subía el fichero {nombre}. Estado de la conexión:{transport.is_active()}\n Error: {e}")
                     sftp.close()
                     transport.close()
                     progreso.close()  # Cerrar la barra de progreso
