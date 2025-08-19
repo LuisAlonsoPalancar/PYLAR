@@ -68,7 +68,10 @@ class SatelitesWindow(QWidget):
     def AgregarSesiones(self):
         #OBJ: Abrir la ventana de sesiones para añadir sesiones a la lista
         #POST: Muestra la ventana de sesiones
-        self.ui.tablaSatelites.clearSelection()  # Limpiar la selección de la tabla
+        self.ui.SelectAll.setChecked(False)
+        for fila in range(self.ui.tablaSatelites.rowCount()):
+            checkbox = self.ui.tablaSatelites.cellWidget(fila, 0)
+            checkbox.setChecked(False)
         self.hija = Ventana_lista_sesiones(self.fecha_input, self.sesiones)  # Crear una instancia de la ventana de sesiones
         self.hija.sesiones_seleccionadas.connect(self.anadir_sesion)  # Conectar señal
         self.hija.show()
@@ -80,6 +83,7 @@ class SatelitesWindow(QWidget):
         self.sesiones = sesiones_nuevas
         self.sesiones_seleccionadas.emit(self.sesiones)  # Emite la señal con las sesiones seleccionadas
         self.ui.tablaSatelites.clear()  # Limpiar la tabla antes de recargar los datos
+        self.datos_satelites.clear()  # Limpiar la lista de los satélites
         self.cargar_datos()  # Recargar los datos de los satélites en la tabla
 
     def cargar_datos(self):
@@ -417,8 +421,8 @@ class SatelitesWindow(QWidget):
             checkbox = self.ui.tablaSatelites.cellWidget(fila, 0)
             if checkbox.isChecked():
                 seleccionados.append(fila)
-        return seleccionados    
-    
+        return seleccionados
+
     def seleccionar_todos(self):
         #OBJ: Seleccionar o deseleccionar todos los checkboxes de la tabla
         #POST: Marca o desmarca todos los checkboxes de la tabla
@@ -569,18 +573,22 @@ class SatelitesWindow(QWidget):
             lista_dirs_fr2 = [] # Lista de rutas de archivos .fr2
             lista_dirs_np2 = [] # Lista de rutas de archivos .np2
             lista_errores = []  # Lista de pases que han generado errores
+            lista_ficheros_fallos = []  # Lista de archivos que han fallado
             i = 0  # Contador para ajustar el índice de las filas restantes
+
             for fila in seleccionados:
+                
                 satelite_selecc = self.datos_satelites[fila]
                 nombre_sat = satelite_selecc['NomSat']
                 try:
                     fr2 = satelite_selecc['ruta_fr2']
                     np2 = satelite_selecc['ruta_np2']
-                    if os.path.exists(fr2) and os.path.exists(np2):
+                    if (fr2 and os.path.exists(fr2)) and  (np2 and os.path.exists(np2)):
                         lista_dirs_fr2.append(fr2)
                         lista_dirs_np2.append(np2)
                         # Eliminar la fila de la tabla y de la lista de datos
                         self.ui.tablaSatelites.removeRow(fila - i)  # -i para ajustar el índice después de eliminar
+                        self.ui.tablaSatelites.selectRow(fila - i)
                         self.datos_satelites[fila]= None  # Limpiar los datos del satélite eliminado
                         i += 1  # Incrementar el contador para ajustar el índice de las filas restantes
                     else:
@@ -588,7 +596,7 @@ class SatelitesWindow(QWidget):
                 except Exception as e:
                     print(f"Error: {e}")
                     lista_errores.append(satelite_selecc['nombre_archivo'])
-            self.datos_satelites = [s for s in self.datos_satelites if s is not None]  # Filtrar los None
+            self.datos_satelites = [s for s in self.datos_satelites if s is not None]  # Filtrar los None 
             if lista_errores:
                 QMessageBox.warning(self, "Advertencia", f"No se encontraron archivos .fr2 o .np2 para los siguientes satélites:\n{', '.join(lista_errores)}")        
             
@@ -613,10 +621,11 @@ class SatelitesWindow(QWidget):
                     i = 0  # Contador para actualizar la barra de progreso
 
                     # Establecer conexión SFTP
+                    
                     transport = paramiko.Transport((host, puerto))
                     transport.connect(username=usuario, password=contrasena)
                     sftp = paramiko.SFTPClient.from_transport(transport)
-
+                    
                     # Subir archivos de ambas listas          
                     for archivo_local in lista_dirs_fr2 + lista_dirs_np2:
                         if not transport.is_active():
@@ -625,6 +634,7 @@ class SatelitesWindow(QWidget):
                             if progreso.wasCanceled():
                                 break
                             if not os.path.exists(archivo_local):
+                                lista_ficheros_fallos.append(os.path.basename(archivo_local))
                                 QMessageBox.warning(self, "Archivo no encontrado", f"No existe: {archivo_local}")
                                 continue
                             nombre = os.path.basename(archivo_local)
@@ -634,11 +644,18 @@ class SatelitesWindow(QWidget):
                             progreso.setValue(i)
                             progreso.setLabelText(f"Subiendo: {nombre}, {i} de {total}")
                         except Exception as e:
+                            lista_errores.append(nombre)
                             QMessageBox.warning(self, f"Error mientras se subía el fichero {nombre}. Estado de la conexión:{transport.is_active()}\n Error: {e}")
                     sftp.close()
                     transport.close()
                     progreso.close()  # Cerrar la barra de progreso
-                    QMessageBox.information(self, "Éxito", "Todos los archivos fueron subidos correctamente")
+                    if lista_ficheros_fallos:
+                        if lista_errores:
+                            QMessageBox.information(self, "Éxito", f"Los archivos fueron subidos correctamente. \n Excepto de los siguientes archivos:\n{(lista_ficheros_fallos)} \n Y los siguientes pases fallaron:\n{(lista_errores)}")
+                        else:
+                            QMessageBox.information(self, "Éxito", f"Los archivos fueron subidos correctamente. \n Excepto de los siguientes archivos:\n{(lista_ficheros_fallos)}")
+                    else:
+                        QMessageBox.information(self, "Éxito", "Todos los archivos fueron subidos correctamente.")
                 except Exception as e2:
                     progreso.close()
                     try:
