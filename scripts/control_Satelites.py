@@ -44,12 +44,12 @@ class SatelitesWindow(QWidget):
         self.fecha_str = self.fecha_input.toString("yyyyMMdd")  # Fecha en formato yyyyMMdd
 
         # RUTAS DE PRUEBAS LOCALES
-        ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
-        ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
-        self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
+        #ruta_sesion_fecha_str = f"./Sesiones/Sessions_{self.fecha_str}" # Ruta de la sesión
+        #ruta_rel_session_fecha = os.path.relpath(ruta_sesion_fecha_str)  # Asegurarse de que la ruta sea absoluta
+        #self.ruta_sesion_fecha = os.path.dirname(os.path.dirname(__file__)) + "/" + ruta_rel_session_fecha
 
         # RUTA EN PC DE ESTACION
-        #self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
+        self.ruta_sesion_fecha = f"/opt/scope/data/export/processing/Sessions_{self.fecha_str}" # Ruta de la sesión
 
         # Establecer la fecha en el widget, en formato dd/MM/yyyy
         self.ui.fecha_entrada.setStyleSheet("font-size: 14pt; font-weight: 700;")
@@ -206,7 +206,7 @@ class SatelitesWindow(QWidget):
         lista_satelites_frd = [] #Lista con los nombres de los archivos .frd encontrados en la subcarpeta RAW
         cabeceras_a_leer = ["","frd","cpf","npt","png","wavelength_nm",
                             "number_normal_points","observations_per_normal_point",
-                            "fullrate_rms_mm","normal_point_rms_mm","comment"
+                            "fullrate_rms_mm","normal_point_std_mm","comment"
         ] # Nombre de las columnas del fichero CSV
 
         # Que es cada entrada en cabeceras_a_leer:
@@ -219,7 +219,7 @@ class SatelitesWindow(QWidget):
         # 6: "number_normal_points": Numero de puntos normales
         # 7: "observations_per_normal_point": Observaciones por NP
         # 8: "fullrate_rms_mm": RMS
-        # 9: "normal_point_rms_mm": Desviacion estandar
+        # 9: "normal_point_std_mm": Desviacion estandar
         # 10: "comment": Comentarios (Donde almacenan el estado)
 
         # (TO BEA): EN CASO DE QUE, EN UN FUTURO, SE CAMBIE LOS NOMBRES DE LAS COLUMNAS DEL CSV
