@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>856</width>
+    <height>530</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(221, 221, 221);</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="1" column="1">
+    <widget class="QFrame" name="QFrame_Bajo">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="Fechaselec">
+        <property name="minimumSize">
+         <size>
+          <width>191</width>
+          <height>31</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>191</width>
+          <height>31</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Rockwell</family>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700; color:#000000;&quot;&gt;Fecha selecionada:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700; color:#ffffff;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDateEdit" name="Fecha">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>10</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;
+</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QFrame" name="QFrame_Botones">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="SigVentana">
+           <property name="minimumSize">
+            <size>
+             <width>121</width>
+             <height>52</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>121</width>
+             <height>52</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{
+	background-color: rgb(255, 255, 255);
+	border-style: outset;
+	border-width: 2px;
+	border-color: grey;
+	border-radius: 10
+}
+QPushButton:hover {
+	border-style: inset;
+}
+QPushButton:pressed{
+	border-style: inset;
+	
+	background-color: rgb(239, 239, 239);
+}</string>
+           </property>
+           <property name="text">
+            <string>Confirmar</string>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="2">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QFrame" name="QFram_Calendario">
+     <property name="minimumSize">
+      <size>
+       <width>545</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>7</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="SelFecha">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; font-weight:700; font-style:italic;&quot;&gt;Seleccione Fecha&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QCalendarWidget" name="calendario">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>747</width>
+          <height>288</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">/* Style for header area  ####################################################*/ 
+
+QCalendarWidget QWidget {
+	 alternate-background-color: #4e7be4;
+	background-color: rgb(255, 255, 255);
+}
+
+/* style for top navigation area ###############################################*/ 
+
+#qt_calendar_navigationbar {
+    background-color: #fff;
+	border: 2px solid  #B8E2FF;
+	border-bottom: 0px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+/* style for month change buttons ############################################ */
+/* style for month change buttons ############################################ */
+
+#qt_calendar_prevmonth, 
+#qt_calendar_nextmonth {
+	/* border delete */
+    border: none;  
+    /* delete default icons */
+	qproperty-icon: none; 
+	
+    min-width: 13px;
+    max-width: 13px;
+    min-height: 13px;
+    max-height: 13px;
+
+    border-radius: 5px; 
+	/* set background transparent */
+    background-color: transparent; 
+	padding: 5px;
+}
+
+/* style for pre month button ############################################ */
+
+#qt_calendar_prevmonth {
+	/* set text for button */
+	/*qproperty-text: &amp;quot;&amp;gt;&amp;quot;;*/
+	margin-left:5px;
+	image: url(:/icon/arrow-119-48.ico);
+}
+
+/* style for next month button ########################################### */
+#qt_calendar_nextmonth {
+	margin-right:5px;
+	image: url(:/icon/arrow-19-48.ico);
+    /* qproperty-text: &amp;quot;&amp;gt;&amp;quot;; */
+}
+#qt_calendar_prevmonth:hover, 
+#qt_calendar_nextmonth:hover {
+    background-color: #55aaff;
+}
+
+#qt_calendar_prevmonth:pressed, 
+#qt_calendar_nextmonth:pressed {
+    background-color: rgba(235, 235, 235, 100);
+}
+
+/* Style for month and yeat buttons #################################### */
+
+#qt_calendar_yearbutton {
+    color: #000;
+	margin:5px;
+    border-radius: 5px;
+	font-size: 13px;
+	padding:0px 10px;
+}
+
+ #qt_calendar_monthbutton {
+	width: 110px;
+    color: #000;
+	font-size: 13px;
+	margin:5px 0px;
+    border-radius: 5px;
+	padding:0px 2px;
+}
+
+#qt_calendar_yearbutton:hover, 
+#qt_calendar_monthbutton:hover {
+    background-color: #55aaff;
+}
+
+#qt_calendar_yearbutton:pressed, 
+#qt_calendar_monthbutton:pressed {
+    background-color: rgba(235, 235, 235, 100);
+}
+
+/* Style for year input lineEdit ######################################*/
+
+#qt_calendar_yearedit {
+    min-width: 53px;
+    color: #000;
+    background: transparent;
+	font-size: 13px;
+}
+
+/* Style for year change buttons ######################################*/
+
+#qt_calendar_yearedit::up-button { 
+	image: url(:/icon/arrow-151-48.ico);
+    subcontrol-position: right;
+}
+
+#qt_calendar_yearedit::down-button { 
+	image: url(:/icon/arrow-213-48.ico);
+    subcontrol-position: left; 
+}
+
+#qt_calendar_yearedit::down-button, 
+#qt_calendar_yearedit::up-button {
+	width:10px;
+	padding: 0px 5px;
+	border-radius:3px;
+}
+
+#qt_calendar_yearedit::down-button:hover, 
+#qt_calendar_yearedit::up-button:hover {
+	background-color: #55aaff;
+}
+/* Style for month select menu ##################################### */
+
+#calendarWidget QToolButton QMenu {
+     background-color: white;
+
+}
+#calendarWidget QToolButton QMenu::item {
+	/*padding: 10px;*/
+}
+ #calendarWidget QToolButton QMenu::item:selected:enabled {
+    background-color: #55aaff;
+}
+
+#calendarWidget QToolButton::menu-indicator {
+	/* Remove toolButton arrow */
+      /*image: none; */
+	nosubcontrol-origin: margin;
+	subcontrol-position: right center;
+	margin-top: 10px;
+	width:20px;
+}
+
+/* Style for calendar table ########################################## */
+#qt_calendar_calendarview {
+	/* Remove the selected dashed box */
+    outline: 0px;
+
+	border: 2px solid  #B8E2FF;
+	border-top: 0px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+#qt_calendar_calendarview::item:hover {
+   border-radius:5px;
+	/*background-color:#aaffff;*/
+	background-color:rgb(163, 160, 255);
+}
+
+#qt_calendar_calendarview::item:selected {
+   /* background-color: #f3d739;*/
+	background-color: rgb(255, 185, 46);
+	color: rgb(0, 0, 0);
+	border-radius:5px;
+}
+</string>
+        </property>
+        <property name="minimumDate">
+         <date>
+          <year>2025</year>
+          <month>5</month>
+          <day>1</day>
+         </date>
+        </property>
+        <property name="gridVisible">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QCalendarWidget::SingleSelection</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../aplicacion/vistas/logos/logos.qrc"/>
+ </resources>
+ <connections/>
+</ui>

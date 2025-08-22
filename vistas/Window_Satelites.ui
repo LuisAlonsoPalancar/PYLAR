@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>856</width>
+    <height>555</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Sesion seleccionada</string>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QPushButton {
+    min-height: 40px;
+}
+</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="QFrame_Tabla">
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(221, 221, 221);</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="fecha_entrada">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Fecha: 14/01/2003&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="SelectAll">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="tablaSatelites">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="QFrame_Botones">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>74</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>74</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>26</number>
+      </property>
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="BotonSubir">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>44</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+
+	background-color: rgb(153, 255, 58);
+	
+	border-style: outset;
+	border-width: 2px;
+	border-color: grey;
+	border-radius: 10
+}
+QPushButton:hover {
+	border-style: inset;
+}
+QPushButton:pressed{
+	border-style: inset;
+	
+	
+	background-color: rgb(130, 217, 49);
+}
+</string>
+        </property>
+        <property name="text">
+         <string>Subir Pases Seleccionados</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="BotonAddSessions">
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+	background-color: rgb(255, 255, 255);
+	border-style: outset;
+	border-width: 2px;
+	border-color: grey;
+	border-radius: 10
+}
+QPushButton:hover {
+	border-style: inset;
+}
+QPushButton:pressed{
+	border-style: inset;
+	
+	background-color: rgb(239, 239, 239);
+}</string>
+        </property>
+        <property name="text">
+         <string>Añadir Sesiones</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="BotonProcMan">
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+	background-color: rgb(255, 255, 255);
+	border-style: outset;
+	border-width: 2px;
+	border-color: grey;
+	border-radius: 10
+}
+QPushButton:hover {
+	border-style: inset;
+}
+QPushButton:pressed{
+	border-style: inset;
+	
+	background-color: rgb(239, 239, 239);
+}</string>
+        </property>
+        <property name="text">
+         <string>Procesado Manual</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="BotonProcAuto">
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+	background-color: rgb(255, 255, 255);
+	border-style: outset;
+	border-width: 2px;
+	border-color: grey;
+	border-radius: 10
+}
+QPushButton:hover {
+	border-style: inset;
+}
+QPushButton:pressed{
+	border-style: inset;
+	
+	background-color: rgb(239, 239, 239);
+}</string>
+        </property>
+        <property name="text">
+         <string>Procesado Automático</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="BotonBorrar">
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+	background-color: rgb(255, 170, 0);
+	border-style: outset;
+	border-width: 2px;
+	border-color: grey;
+	border-radius: 10
+}
+QPushButton:hover {
+	border-style: inset;
+}
+QPushButton:pressed{
+	border-style: inset;
+	
+	
+	background-color: rgb(222, 148, 0);
+}</string>
+        </property>
+        <property name="text">
+         <string>Borrar Pases Seleccionados</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="logos/logos.qrc"/>
+ </resources>
+ <connections/>
+</ui>
