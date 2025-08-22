@@ -54,24 +54,15 @@ class MainWindow(QMainWindow):
         #POST: Los archivos se han movido y NPgo ha sido llamado
 
         ruta_export = f"/opt/scope/data/export/"
-        ruta_export = os.path.dirname(os.path.dirname(__file__))+ "/Sesiones/"
-        print("Ruta de export:", ruta_export)
         # Comprobar los archivos .frd que hay en la ruta_export
         archivos_frd = [f for f in os.listdir(ruta_export) if f.lower().endswith('.frd')]
         archivos_cpf = [f for f in os.listdir(ruta_export) if f.lower().endswith('.cpf')]
-
-        print("Archivos .frd encontrados:", archivos_frd)
-        print("Archivos .cpf encontrados:", archivos_cpf)
 
         if archivos_frd and archivos_cpf:
             
             try:
                 fecha_str = self.fecha.toString("yyyyMMdd")
                 sesion_dia_actual = f"{ruta_export}processing/Sessions_{fecha_str}"
-                sesion_dia_actual = f"{ruta_export}Sessions_{fecha_str}"
-
-                print("Ruta de la sesión del día:", sesion_dia_actual)
-
                 if os.path.exists(sesion_dia_actual):
                     # Existe la sesión del día actual
                     # Buscar la sesión con índice más alto y crear una nueva
@@ -112,8 +103,7 @@ class MainWindow(QMainWindow):
                 else:
                     ruta_destino = f"{sesion_dia_actual}/Session01"
                     last_session_num = 0
-                    print("No existe el directorio de la sesión del día actual.")
-                    print(f"Creando la estructura de carpetas en {ruta_destino}...")
+
                     os.makedirs(ruta_destino, exist_ok=True)
                     # Crear las subcarpetas requeridas dentro de la nueva sesión
                     subcarpetas = ["RAW", "CPF", "FRD", "FRDv1", "NPT", "NPTv1", "PNG"]
@@ -125,13 +115,11 @@ class MainWindow(QMainWindow):
                         # Mover el archivo .frd a la carpeta RAW de la nueva sesión
                         src_frd = os.path.join(ruta_export, frd)
                         dst_frd = os.path.join(ruta_destino, "RAW", frd)
-                        print(f"Moviendo {frd} a {dst_frd}...")
                         os.rename(src_frd, dst_frd)
                         
                     for cpf in archivos_cpf:
                         src_cpf = os.path.join(ruta_export, cpf)
                         dst_cpf = os.path.join(ruta_destino, "CPF", cpf)
-                        print(f"Moviendo {cpf} a {dst_cpf}...")
                         os.rename(src_cpf, dst_cpf)
                 except Exception as e:
                     QMessageBox.critical(self, "Error", f"No se puede procesar los pases. \nError al mover los archivos: {e}")
