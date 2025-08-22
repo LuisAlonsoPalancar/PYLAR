@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="logoYapagar">
+    <file>procesado_auto.svg</file>
     <file>apagar.png</file>
     <file>Logo YLARA.png</file>
   </qresource>

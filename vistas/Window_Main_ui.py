@@ -101,6 +101,29 @@ class Ui_MainWindow(object):
         self.frame.setObjectName("frame")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.frame)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.BotonProcesado = QtWidgets.QPushButton(parent=self.frame)
+        self.BotonProcesado.setMinimumSize(QtCore.QSize(5, 40))
+        self.BotonProcesado.setStyleSheet("QPushButton{\n"
+"    \n"
+"    \n"
+"    background-color: rgb(236, 108, 58);\n"
+"    border-style: outset;\n"
+"    border-width: 2px;\n"
+"    border-color: grey;\n"
+"    border-radius: 10\n"
+"}\n"
+"QPushButton:hover {\n"
+"    border-style: inset;\n"
+"}\n"
+"QPushButton:pressed{\n"
+"    border-style: inset;\n"
+"    background-color: rgb(223, 100, 55);\n"
+"}")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/logoYapagar/procesado_auto.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.BotonProcesado.setIcon(icon)
+        self.BotonProcesado.setObjectName("BotonProcesado")
+        self.verticalLayout_3.addWidget(self.BotonProcesado)
         self.BotonCalendario = QtWidgets.QPushButton(parent=self.frame)
         self.BotonCalendario.setMinimumSize(QtCore.QSize(5, 40))
         self.BotonCalendario.setStyleSheet("QPushButton{\n"
@@ -120,9 +143,9 @@ class Ui_MainWindow(object):
 "    \n"
 "    background-color: rgb(159, 238, 0);\n"
 "}")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icon/calendario.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.BotonCalendario.setIcon(icon)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/icon/calendario.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.BotonCalendario.setIcon(icon1)
         self.BotonCalendario.setObjectName("BotonCalendario")
         self.verticalLayout_3.addWidget(self.BotonCalendario)
         self.BotonSesiones = QtWidgets.QPushButton(parent=self.frame)
@@ -143,9 +166,9 @@ class Ui_MainWindow(object):
 "    \n"
 "    background-color: rgb(236, 157, 0);\n"
 "}")
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/icon/lista.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.BotonSesiones.setIcon(icon1)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(":/icon/lista.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.BotonSesiones.setIcon(icon2)
         self.BotonSesiones.setObjectName("BotonSesiones")
         self.verticalLayout_3.addWidget(self.BotonSesiones)
         self.BotonPases = QtWidgets.QPushButton(parent=self.frame)
@@ -166,9 +189,9 @@ class Ui_MainWindow(object):
 "    \n"
 "    background-color: rgb(73, 218, 218);\n"
 "}")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/icon/target_laser.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.BotonPases.setIcon(icon2)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(":/icon/target_laser.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.BotonPases.setIcon(icon3)
         self.BotonPases.setObjectName("BotonPases")
         self.verticalLayout_3.addWidget(self.BotonPases)
         self.verticalLayout_2.addWidget(self.frame)
@@ -195,9 +218,9 @@ class Ui_MainWindow(object):
 "    background-color: rgb(207, 0, 0);\n"
 "}")
         self.BotonCerrar.setText("")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(":/logoYapagar/apagar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.BotonCerrar.setIcon(icon3)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(":/logoYapagar/apagar.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.BotonCerrar.setIcon(icon4)
         self.BotonCerrar.setIconSize(QtCore.QSize(24, 24))
         self.BotonCerrar.setObjectName("BotonCerrar")
         self.verticalLayout_4.addWidget(self.BotonCerrar)
@@ -229,6 +252,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.Cabecera.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:26pt; font-weight:700; color:#ffffff;\">Administrador de Pases de YLARA</span></p></body></html>"))
+        self.BotonProcesado.setText(_translate("MainWindow", "Procesado Inicial"))
         self.BotonCalendario.setText(_translate("MainWindow", "Calendario"))
         self.BotonSesiones.setText(_translate("MainWindow", "Sesiones"))
         self.BotonPases.setText(_translate("MainWindow", " Pases  "))
