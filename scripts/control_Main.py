@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
                 try:
                     script_path = "/opt/scope/bin/processing/npgo-auto-run.sh"
                     ruta_config = "/opt/scope/bin/processing/config_processing.ini"
-                    ruta_sesion_comando = f"{ruta_destino}"  # Ruta de la sesión
+                    ruta_sesion_comando = f"{sesion_dia_actual}"  # Ruta de la sesión
                     comando = [script_path, ruta_config, ruta_sesion_comando, str(last_session_num+1)]
                     # Ejecutar el comando en segundo plano, sin bloquear la interfaz
                     subprocess.Popen(comando)
