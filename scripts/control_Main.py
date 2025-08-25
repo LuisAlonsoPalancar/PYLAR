@@ -141,27 +141,28 @@ class MainWindow(QMainWindow):
                     try:
                         time_deadline = 0  # Contador para el tiempo máximo de espera
                         total = len(archivos_frd)
-                        progreso = QProgressDialog("Subiendo archivos...", "Cancelar", 0, total, self)
-                        progreso.setWindowTitle("Progreso de subida")
-                        progreso.setWindowModality(Qt.WindowModality.ApplicationModal)
-                        progreso.setAutoClose(True)
-                        fichero_csv_resultado = f"{ruta_destino}/session_info_transposed.csv"
-                        i = 0  # Contador para actualizar la barra de progreso
-                        while not os.path.exists(fichero_csv_resultado) or time_deadline < 300 or i < total:
-                            # Mientras no se haya comletado el procesado (No esté el fichero CSV)
-                            # 300 segundos ( 5 minutos de maximo)
-                            # o no se hayan procesado todos los pases
-                            time.sleep(1)
-                            time_deadline += 1
-                            try:
-                                if progreso.wasCanceled():
-                                    break
-                                i = len(os.listdir(os.path.join(ruta_destino, "NPT")))
-                                progreso.setValue(i)
-                                progreso.setLabelText(f"Procesando... {i} de {total}")
-                            except Exception as e:
-                                QMessageBox.critical(self, "Error:", {e})
-                        progreso.close()  # Cerrar la barra de progreso
+                        if total > 0: 
+                            progreso = QProgressDialog("Subiendo archivos...", "Cancelar", 0, total, self)
+                            progreso.setWindowTitle("Progreso de subida")
+                            progreso.setWindowModality(Qt.WindowModality.ApplicationModal)
+                            progreso.setAutoClose(True)
+                            fichero_csv_resultado = f"{ruta_destino}/session_info_transposed.csv"
+                            i = 0  # Contador para actualizar la barra de progreso
+                            while not os.path.exists(fichero_csv_resultado) or time_deadline < 300 or i < total:
+                                # Mientras no se haya comletado el procesado (No esté el fichero CSV)
+                                # 300 segundos ( 5 minutos de maximo)
+                                # o no se hayan procesado todos los pases
+                                time.sleep(1)
+                                time_deadline += 1
+                                try:
+                                    if progreso.wasCanceled():
+                                        break
+                                    i = len(os.listdir(os.path.join(ruta_destino, "NPT")))
+                                    progreso.setValue(i)
+                                    progreso.setLabelText(f"Procesando... {i} de {total}")
+                                except Exception as e:
+                                    QMessageBox.critical(self, "Error:", {e})
+                            progreso.close()  # Cerrar la barra de progreso
                     except Exception as e:
                         try:
                             progreso.close()
