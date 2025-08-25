@@ -143,6 +143,7 @@ class MainWindow(QMainWindow):
                         total = len(archivos_frd)
                         if total > 0: 
                             progreso = QProgressDialog("Subiendo archivos...", "Cancelar", 0, total, self)
+                            progreso.setStyleSheet("QProgressBar { background-color: white; }")
                             progreso.setWindowTitle("Progreso de subida")
                             progreso.setWindowModality(Qt.WindowModality.ApplicationModal)
                             progreso.setAutoClose(True)
