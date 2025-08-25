@@ -17,9 +17,10 @@ import sys
 import os
 import subprocess
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox
-from PyQt6.QtCore import QDate
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QProgressDialog
+from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtGui import QIcon
+import time
 
 from scripts.control_Calendario import MainWindow as controlCalendarWindow # Control Ventana Calendario
 from scripts.control_Satelites import SatelitesWindow as controlSatelitesWindow # Control Ventana de Pases
@@ -53,11 +54,15 @@ class MainWindow(QMainWindow):
         #PRE: Comprobar que existen los archivos necesarios y que la ruta de destino es válida
         #POST: Los archivos se han movido y NPgo ha sido llamado
 
-        ruta_export = f"/opt/scope/data/export/"
-        # Comprobar los archivos .frd que hay en la ruta_export
-        archivos_frd = [f for f in os.listdir(ruta_export) if f.lower().endswith('.frd')]
-        archivos_cpf = [f for f in os.listdir(ruta_export) if f.lower().endswith('.cpf')]
-
+        try:
+            ruta_export = f"/opt/scope/data/export/"
+            # Comprobar los archivos .frd que hay en la ruta_export
+            archivos_frd = [f for f in os.listdir(ruta_export) if f.lower().endswith('.frd')]
+            archivos_cpf = [f for f in os.listdir(ruta_export) if f.lower().endswith('.cpf')]
+        except Exception as e:
+            archivos_frd = []
+            archivos_cpf = []
+            QMessageBox.critical(self, "Error", f"No se puede acceder a la carpeta export: {e}")
         if archivos_frd and archivos_cpf:
             
             try:
@@ -131,6 +136,38 @@ class MainWindow(QMainWindow):
                     comando = [script_path, ruta_config, ruta_sesion_comando, str(last_session_num+1)]
                     # Ejecutar el comando en segundo plano, sin bloquear la interfaz
                     subprocess.Popen(comando)
+
+                    # Barra de progreso de los pases
+                    try:
+                        time_deadline = 0  # Contador para el tiempo máximo de espera
+                        total = len(archivos_frd)
+                        progreso = QProgressDialog("Subiendo archivos...", "Cancelar", 0, total, self)
+                        progreso.setWindowTitle("Progreso de subida")
+                        progreso.setWindowModality(Qt.WindowModality.ApplicationModal)
+                        progreso.setAutoClose(True)
+                        fichero_csv_resultado = f"{ruta_destino}/session_info_transposed.csv"
+                        i = 0  # Contador para actualizar la barra de progreso
+                        while not os.path.exists(fichero_csv_resultado) or time_deadline < 300 or i < total:
+                            # Mientras no se haya comletado el procesado (No esté el fichero CSV)
+                            # 300 segundos ( 5 minutos de maximo)
+                            # o no se hayan procesado todos los pases
+                            time.sleep(1)
+                            time_deadline += 1
+                            try:
+                                if progreso.wasCanceled():
+                                    break
+                                i = len(os.listdir(os.path.join(ruta_destino, "NPT")))
+                                progreso.setValue(i)
+                                progreso.setLabelText(f"Procesando... {i} de {total}")
+                            except Exception as e:
+                                QMessageBox.critical(self, "Error:", {e})
+                        progreso.close()  # Cerrar la barra de progreso
+                    except Exception as e:
+                        try:
+                            progreso.close()
+                        except:
+                            pass
+                        QMessageBox.critical(self, "Error", f"Error en la barra de progreso: {e}")
                 except Exception as e:
                     QMessageBox.critical(self, "Error", f"Error al llamar a NPgo: {e}")
             except Exception as e:
